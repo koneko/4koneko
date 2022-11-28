@@ -13,7 +13,6 @@ function getNum (key) {
             return 3;
     }
 }
-
 class Game {
     constructor () {
         app.stage.interactive = true
