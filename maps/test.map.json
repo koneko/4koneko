@@ -1,0 +1,42 @@
+[
+    {
+        "lane": 0,
+        "speed": 2,
+        "seconds": 1
+    },
+    {
+        "lane": 1,
+        "speed": 2,
+        "seconds": 1.2
+    },
+    {
+        "lane": 2,
+        "speed": 2,
+        "seconds": 1.4
+    },
+    {
+        "lane": 3,
+        "speed": 2,
+        "seconds": 1.6
+    },
+    {
+        "lane": 0,
+        "speed": 2,
+        "seconds": 2
+    },
+    {
+        "lane": 1,
+        "speed": 2,
+        "seconds": 2.2
+    },
+    {
+        "lane": 2,
+        "speed": 2,
+        "seconds": 2.4
+    },
+    {
+        "lane": 3,
+        "speed": 2,
+        "seconds": 2.6
+    }
+]
