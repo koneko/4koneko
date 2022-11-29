@@ -298,7 +298,7 @@ class Map {
 let params = new URLSearchParams(window.location.search)
 let url = params.get("url")
 if (!url) {
-    url = "/maps/test.map.json"
+    url = "/4koneko/test.map.json"
 }
 let map = new Map()
 map.loadURL(url)
