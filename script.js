@@ -300,7 +300,6 @@ let url = params.get("url")
 if (!url) {
     url = "/maps/test.map.json"
 }
-
 let map = new Map()
 map.loadURL(url)
 let game = new Game()
