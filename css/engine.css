@@ -15,3 +15,7 @@ html, body {
 .canvas > canvas {
     border: 1px black solid;
 }
+
+#score {
+    margin-left: 10px;
+}
