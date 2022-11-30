@@ -4,12 +4,14 @@ from tkinter import *
 import json
 
 root = Tk()
-root.title("Mapping Tool")
+root.title("4koneko Map Editor")
 root.geometry("500x500")
 
 # Create a menu bar
 menu = Menu(root)
 root.config(menu=menu)
+def interpret(data):
+    print("hello")
 
 class Project:
     def __init__(self, data):
@@ -18,23 +20,16 @@ class Project:
         self.menu = Menu(menu, tearoff=0)
         self.menu.add_command(label="Save", command=self.save)
         self.menu.add_command(label="Close", command=self.close)
-        # create a grid
-        self.grid = Frame(root)
-        self.grid.pack(fill=BOTH, expand=1)
-        # create a canvas
-        self.canvas = Canvas(self.grid, width=500, height=500)
-        self.canvas.pack(fill=BOTH, expand=1)
-        # create a scrollbar
-        self.scrollbar = Scrollbar(self.grid, orient=VERTICAL, command=self.canvas.yview)
-        self.scrollbar.pack(side=RIGHT, fill=Y)
-        # configure the canvas
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)
-        self.canvas.bind('<Configure>', lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
-        # create a new frame
-        self.frame = Frame(self.canvas)
-        # add the new frame to a window in the canvas
-        self.canvas.create_window((0, 0), window=self.frame, anchor="nw")
-        #
+        # create canvas
+        self.canvas = Canvas(root, width=500, height=10000, bg="white")
+        self.canvas.pack()
+        # for every object in the data, draw it    
+        self.canvas.create_rectangle(100, 0, 200, 100, fill="red", outline="black")
+        for obj in self.data:
+            lane = obj["lane"]
+            speed = obj["speed"]
+            seconds = obj["seconds"]
+
         
     def save(self):
         print("Save")
