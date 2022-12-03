@@ -281,7 +281,7 @@ class Map {
         this.notes.push(obj)
     }
     loadExternalMap (json) {
-        json.forEach(note => {
+        json.data.forEach(note => {
             this.createNote(note.lane, note.seconds, note.speed)
         })
     }
