@@ -1,18 +1,17 @@
 from tkinter import filedialog
 from tkinter import simpledialog
 from tkinter import *
+import base64 
 import json
 
 root = Tk()
-root.title("4koneko Map Editor")
-root.geometry("700x700")
+root.title("Mapping Tool")
+root.geometry("550x700")
 root.resizable(False, False)
 
 # Create a menu bar
 menu = Menu(root)
 root.config(menu=menu)
-def interpret(data):
-    print(data)
 
 # function that generates fake map data for every second and half second in json with length of length (in seconds) and in every lane (seconds, lane, speed)
 # returns json
@@ -23,18 +22,24 @@ def generate_fake_map_data(length):
             data.append({"seconds": i / 2, "lane": lane, "speed": 1})
     return data
 
-
+# json data to base64
+def json_to_base64(data):
+    return base64.b64encode(json.dumps(data).encode("utf-8")).decode("utf-8")
 
 class Project:
     def __init__(self, data, name):
         self.data = data
-        self.height = self.data["totalSeconds"] * 100
+        self.height = self.data["totalSeconds"] * 125
         self.name = name
         self.menu = Menu(menu, tearoff=0)
         self.menu.add_command(label="Save", command=self.save)
         self.menu.add_command(label="View mode", command=self.viewmode)
         self.menu.add_command(label="Edit mode", command=self.editmode)
         self.menu.add_command(label="Set Seconds", command=self.setseconds)
+        self.extras = Menu(self.menu, tearoff=0)
+        self.extras.add_command(label="Export to Base64", command=self.export)
+        self.extras.add_command(label="Custom Note", command=self.customnote)
+        self.menu.add_cascade(label="Extras", menu=self.extras)
         self.frame = Frame(root, width=700, height=self.height)
         self.frame.pack(expand=True, fill=BOTH)
         self.canvas = Canvas(self.frame, bg='#F0F0F0', width=700, height=self.height, scrollregion=(0, 0, 1000, self.height))
@@ -47,8 +52,37 @@ class Project:
         # bind the mouse wheel to the canvas
         self.canvas.bind_all("<MouseWheel>", lambda event: self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units"))
         self.viewmode()
-    
-    
+
+    def export(self):
+        b64 = json_to_base64(self.data["data"])
+        print(b64)
+
+    def customnote(self):
+        lane = simpledialog.askinteger("Custom Note", "Where do you want the note?")
+        if lane == None:
+            lane = 0
+        seconds = simpledialog.askfloat("Custom Note", "When do you want the note?")
+        if seconds == None:
+            seconds = 0.0
+        speed = simpledialog.askinteger("Custom Note", "How fast do you want the note?")
+        if speed == None:
+           speed = 1
+        # add to data
+        self.data["data"].append({"seconds": seconds, "lane": lane, "speed": speed})                     
+
+    def showinfo(self,obj):
+        # calculate the x and y coordinates
+        x = obj["lane"] * 125
+        y = obj["seconds"] * 125
+        # calculate the width and height
+        w = 125
+        h = 125
+        self.canvas.create_text(x + w / 2, y + h / 2, text="Speed: " + str(obj["speed"]))
+
+    def hideinfo(self, obj):
+        self.clearcanvas()
+        self.viewmode()
+
     def clearcanvas(self):
         self.canvas.delete("all")
 
@@ -58,7 +92,7 @@ class Project:
 
     def setseconds(self):
         self.data["totalSeconds"] = simpledialog.askinteger("Set Seconds", "How many seconds do you want?")
-        self.height = self.data["totalSeconds"] * 100
+        self.height = self.data["totalSeconds"] * 125
         self.frame.config(height=self.height)
         self.canvas.config(height=self.height, scrollregion=(0, 0, 1000, self.height))
         self.vbar.config(command=self.canvas.yview)
@@ -72,16 +106,19 @@ class Project:
         cdata = []
         for i in self.data["data"]:
             cdata.append({"seconds": i["seconds"], "lane": i["lane"]})
-        if cobj in cdata:
-            # get cobj index in cdata
-            index = cdata.index(cobj)
-            # in self.data["data"], remove the object at index
-            self.data["data"].pop(index)
-        obj["speed"] = simpledialog.askinteger("Set Speed", "What speed do you want?")
-        if obj["speed"] == 0:
+        # get cobj index in cdata
+        index = cdata.index(cobj)
+        # in self.data["data"], remove the object at index
+        self.data["data"].pop(index)
+        tspeed = simpledialog.askinteger("Set Speed", "What speed do you want?")
+        if tspeed == None:
+            tspeed = 1
+        obj["speed"] = tspeed 
+        
+        if obj["speed"] <= 0:
             obj["speed"] = 1
         self.data["data"].append(obj)
-        self.editmode()
+        self.viewmode()
 
     def viewmode(self):
         self.clearcanvas()
@@ -95,8 +132,11 @@ class Project:
             y = seconds * 125
             # calculate the width and height
             w = 125
-            h = 125
-            self.canvas.tag_bind(self.canvas.create_rectangle(x, y, x + w, y + h, fill="#B5B5B5"), "<Button-1>", lambda event, obj=obj: edit(obj))
+            h = 125 / 2
+            self.canvas.tag_bind(self.canvas.create_rectangle(x, y, x + w, y + h, fill="#B5B5B5"), "<Button-1>", lambda event, obj=obj: self.edit(obj))
+            # create a text object in the middle of the rectangle with the speed, white color, impact font, black border    
+
+            self.canvas.tag_bind(self.canvas.create_text(x + w / 2, y + h / 2, text="Speed: " + str(speed) + "\nSeconds: " + str(seconds)), "<Button-1>", lambda event, obj=obj: self.edit(obj))
     
     def makeorbreak(self, obj):
         cobj = {"seconds": obj["seconds"], "lane": obj["lane"]}
@@ -111,15 +151,6 @@ class Project:
         else:
             self.data["data"].append(obj)
         self.editmode()
-
-    def showinfo(self, obj):
-        if self.tooltips:
-            self.canvas.create_text(obj["lane"] * 125 + 62.5, obj["seconds"] * 125 + 62.5, text="lane: " + str(obj["lane"]) + " speed: " + str(obj["speed"]) + " seconds: " + str(obj["seconds"]), fill="#000000", font=("Arial", 10))   
-
-    def hideinfo(self, obj):
-        if self.tooltips:
-            self.canvas.delete("all")
-            self.editmode()
 
     def editmode(self):
         self.clearcanvas()
@@ -141,8 +172,6 @@ class Project:
                 cdata.append({"seconds": i["seconds"], "lane": i["lane"]})
             if cobj in cdata:
                 self.canvas.tag_bind(self.canvas.create_rectangle(x, y, x + w, y + h, fill="#B5B5B5"), "<Button-1>", lambda event, obj=obj: self.makeorbreak(obj))
-                # on right click, call self.edit(obj)
-                self.canvas.tag_bind(self.canvas.create_rectangle(x, y, x + w, y + h, fill="#B5B5B5"), "<Button-3>", lambda event, obj=obj: self.edit(obj))
             else:
                 self.canvas.tag_bind(self.canvas.create_rectangle(x, y, x + w, y + h, fill="#E8E8E8"), "<Button-1>", lambda event, obj=obj: self.makeorbreak(obj))
     
@@ -181,13 +210,17 @@ def internal_project_init(raw, name):
     # create a new project
     project = Project(data, name)
     # add project to menu
-    menu.add_cascade(label=project.name, menu=project.menu)
+    menu.add_cascade(label="Project", menu=project.menu)
+    # disable new project button and load project button
+    menu.entryconfig(0, state=DISABLED)
+    menu.entryconfig(1, state=DISABLED)
+
 
 # Create a menu item
 file_menu = Menu(menu, tearoff=0)
 
 menu.add_cascade(label="File", menu=file_menu)
-file_menu.add_command(label="New Project...", command=new_project)
+file_menu.add_command(label="New Project", command=new_project)
 file_menu.add_command(label="Load", command=load_project)
 file_menu.add_command(label="Exit", command=root.quit)
 root.mainloop()
