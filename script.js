@@ -1,4 +1,5 @@
 const app = new PIXI.Application();
+var sec = 0
 document.querySelector("div.canvas").appendChild(app.view);
 
 function getNum (key) {
@@ -37,6 +38,41 @@ function getLastLog (input, key) {
     return log
 }
 
+class Renderer {
+    constructor () {
+        this.objects = []
+    }
+    createSprite (x, y, texture) {
+        let sprite = new PIXI.Sprite(texture)
+        sprite.x = x
+        sprite.y = y
+        app.stage.addChild(sprite)
+        this.objects.push(sprite)
+        return sprite
+    }
+    createRectangle (x, y, width, height, color) {
+        let rectangle = new PIXI.Graphics();
+        rectangle.beginFill(color);
+        rectangle.drawRect(x - width / 2, y - height / 2, width, height);
+        rectangle.endFill();
+        app.stage.addChild(rectangle);
+        this.objects.push(rectangle)
+        return rectangle;
+    }
+    createText (x, y, rawtext, style) {
+        let text = new PIXI.Text(rawtext, style);
+        text.x = x
+        text.y = y
+        app.stage.addChild(text)
+        this.objects.push(text)
+        return text
+    }
+    deleteObject (object) {
+        app.stage.removeChild(object)
+        this.objects.splice(this.objects.indexOf(object), 1)
+    }
+}
+
 class Game {
     constructor () {
         app.stage.interactive = true
@@ -44,9 +80,10 @@ class Game {
         this.mouseX = 0
         this.mouseY = 0
         this.delta = 0
-        this.seconds = 0
+        this.seconds = 0.0
         this.points = 0
         this.globalSpeed = 1
+        this.correct = 0
         this.left = { key: "d", pressed: false }
         this.up = { key: "f", pressed: false }
         this.down = { key: "j", pressed: false }
@@ -73,7 +110,12 @@ class Game {
         app.ticker.add(() => {
             this.delta++
             this.seconds = (this.delta / 60).toFixed(2)
-            document.getElementById("tickerdelta").textContent = this.seconds.toString()
+            if (this.seconds == sec) {
+                // end game
+                console.warn("end game")
+                this.endGame()
+            }
+            document.getElementById("tickerdelta").textContent = this.seconds.toString() + " / " + sec
             this.update();
         })
     }
@@ -98,10 +140,11 @@ class Game {
     updateArrows () {
         if (this.notes == null) return
         this.notes.forEach(note => {
-            if (note.seconds == this.seconds) {
+            if (note.seconds <= this.seconds && note.consumed == false) {
+                note.consumed = true
                 let arrow = new Arrow(game, note.lane, note.speed, note.id)
                 this.arrows.push(arrow)
-                console.log("arrow created")
+                console.warn("arrow created", arrow.lane, arrow.index)
             }
         })
         if (this.arrows == null) return
@@ -109,36 +152,32 @@ class Game {
             arrow.update()
         })
     }
-    createSprite (x, y, texture) {
-        let sprite = new PIXI.Sprite(texture)
-        sprite.x = x
-        sprite.y = y
-        app.stage.addChild(sprite)
-        return sprite
+    endGame () {
+        document.querySelector("div.canvas").removeChild(app.view)
+        document.querySelector("div.canvas").innerHTML = `
+        <div>
+            <h1>Game finished!</h1>
+            <h2>Points: ${this.points}</h2>
+            <h2>Accuracy: ${this.getAccuracy()}%</h2>
+        </div>
+        `
+        // delete game object
+        game = null
+        // stop ticker
+        app.ticker.stop()
     }
-    createRectangle (x, y, width, height, color) {
-        let rectangle = new PIXI.Graphics();
-        rectangle.beginFill(color);
-        rectangle.drawRect(x - width / 2, y - height / 2, width, height);
-        rectangle.endFill();
-        app.stage.addChild(rectangle);
-        return rectangle;
-    }
-    createText (x, y, rawtext, style) {
-        let text = new PIXI.Text(rawtext, style);
-        text.x = x
-        text.y = y
-        app.stage.addChild(text)
-        return text
+    getAccuracy () {
+        return ((this.correct / this.notes.length) * 100).toString()
     }
     createLanes () {
         for (let i = 0; i < this.lanes.length; i++) {
             let lane = this.lanes[i]
-            this.lanes[i].lane = this.createRectangle(lane.x, lane.y, lane.width, lane.height, lane.color)
+            this.lanes[i].lane = renderer.createRectangle(lane.x, lane.y, lane.width, lane.height, lane.color)
         }
     }
     press (key) {
         let num = getNum(key)
+        console.warn("key press", num)
         this.lanes[num].color = 0x808080
         this.lanes[num].key.pressed = true
         let lastLog = getLastLog(this.keylog)
@@ -172,6 +211,7 @@ class Game {
     }
     release (key) {
         let num = getNum(key)
+        console.warn("key release", num)
         this.lanes[num].color = 0xFFFFFF
         this.lanes[num].key.pressed = false
         this.lanes[num].valid = true
@@ -203,8 +243,9 @@ class Game {
         document.getElementById("score").innerHTML = "Score: " + this.points
     }
     destroyArrow (arrow) {
+        console.warn("arrow destroyed", arrow.lane, arrow.index)
         app.stage.removeChild(arrow.object)
-        this.arrows.shift()
+        this.arrows.splice(this.arrows.indexOf(arrow), 1)
     }
 }
 
@@ -232,7 +273,7 @@ class Arrow {
         let width = 100
         let height = 100
         let color = this.color
-        let arrow = game.createRectangle(x, y, width, height, color)
+        let arrow = renderer.createRectangle(x, y, width, height, color)
         arrow.zindex = this.index
         this.object = arrow
     }
@@ -256,6 +297,7 @@ class Arrow {
             //dog water 🤢
             game.addPoints(20)
         }
+        game.correct++
         game.destroyArrow(this)
     }
     move () {
@@ -276,7 +318,8 @@ class Map {
             lane,
             speed,
             seconds,
-            id
+            id,
+            consumed: false
         }
         this.notes.push(obj)
     }
@@ -284,6 +327,7 @@ class Map {
         json.data.forEach(note => {
             this.createNote(note.lane, note.seconds, note.speed)
         })
+        sec = json.totalSeconds
     }
     loadURL (url) {
         fetch(url).then(res => res.json()).then((data) => {
@@ -298,9 +342,10 @@ class Map {
 let params = new URLSearchParams(window.location.search)
 let url = params.get("url")
 if (!url) {
-    url = "/4koneko/test.map.json"
+    url = "/test.map.json"
 }
 let map = new Map()
+let renderer = new Renderer()
 map.loadURL(url)
 let game = new Game()
 game.loadMap(map.exportMap())
