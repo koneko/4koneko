@@ -37,6 +37,13 @@ function getLastLog (input, key) {
     }
     return log
 }
+function checkIsDone (notes) {
+    let done = true
+    notes.forEach(note => {
+        if (note.consumed == false) done = false
+    })
+    return done
+}
 
 class Renderer {
     constructor () {
@@ -110,7 +117,7 @@ class Game {
         app.ticker.add(() => {
             this.delta++
             this.seconds = (this.delta / 60).toFixed(2)
-            if (this.seconds == sec) {
+            if (this.seconds > sec && checkIsDone(this.notes) == true && this.arrows.length == 0 && sec != 0) {
                 // end game
                 console.warn("end game")
                 this.endGame()
@@ -161,13 +168,11 @@ class Game {
             <h2>Accuracy: ${this.getAccuracy()}%</h2>
         </div>
         `
-        // delete game object
-        game = null
         // stop ticker
         app.ticker.stop()
     }
     getAccuracy () {
-        return ((this.correct / this.notes.length) * 100).toString()
+        return ((this.correct / this.notes.length) * 100).toFixed(2).toString()
     }
     createLanes () {
         for (let i = 0; i < this.lanes.length; i++) {
@@ -342,7 +347,7 @@ class Map {
 let params = new URLSearchParams(window.location.search)
 let url = params.get("url")
 if (!url) {
-    url = "/test.map.json"
+    url = "/4koneko/test.map.json"
 }
 let map = new Map()
 let renderer = new Renderer()

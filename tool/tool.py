@@ -15,11 +15,11 @@ root.config(menu=menu)
 
 # function that generates fake map data for every second and half second in json with length of length (in seconds) and in every lane (seconds, lane, speed)
 # returns json
-def generate_fake_map_data(length):
+def generate_fake_map_data(length, speed):
     data = []
     for i in range(length * 2):
         for lane in range(4):
-            data.append({"seconds": i / 2, "lane": lane, "speed": 1})
+            data.append({"seconds": i / 2, "lane": lane, "speed": speed})
     return data
 
 # json data to base64
@@ -27,18 +27,23 @@ def json_to_base64(data):
     return base64.b64encode(json.dumps(data).encode("utf-8")).decode("utf-8")
 
 class Project:
-    def __init__(self, data, name):
+    def __init__(self, data, name, path):
         self.data = data
         self.height = self.data["totalSeconds"] * 125
         self.name = name
+        self.path = path
+        if self.path == None:
+            self.path = "./" + self.name + ".map.json"
         self.menu = Menu(menu, tearoff=0)
         self.menu.add_command(label="Save", command=self.save)
+        self.menu.add_command(label="Close", command=self.close)
         self.menu.add_command(label="View mode", command=self.viewmode)
         self.menu.add_command(label="Edit mode", command=self.editmode)
-        self.menu.add_command(label="Set Seconds", command=self.setseconds)
         self.extras = Menu(self.menu, tearoff=0)
         self.extras.add_command(label="Export to Base64", command=self.export)
         self.extras.add_command(label="Custom Note", command=self.customnote)
+        self.extras.add_command(label="Set Seconds", command=self.setseconds)
+        self.extras.add_command(label="Set Default speed", command=self.setspeed)
         self.menu.add_cascade(label="Extras", menu=self.extras)
         self.frame = Frame(root, width=700, height=self.height)
         self.frame.pack(expand=True, fill=BOTH)
@@ -53,17 +58,27 @@ class Project:
         self.canvas.bind_all("<MouseWheel>", lambda event: self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units"))
         self.viewmode()
 
+    def close(self):
+        self.frame.destroy()
+        menu.delete("Project")
+        # enable file menu
+        menu.entryconfig("File", state=NORMAL)
+
+    def setspeed(self):
+        self.data["defaultSpeed"] = simpledialog.askinteger("Set Default Speed", "What speed do you want?")
+        self.editmode()
+
     def export(self):
         b64 = json_to_base64(self.data["data"])
         print(b64)
 
     def customnote(self):
-        lane = simpledialog.askinteger("Custom Note", "Where do you want the note?")
-        if lane == None:
-            lane = 0
         seconds = simpledialog.askfloat("Custom Note", "When do you want the note?")
         if seconds == None:
             seconds = 0.0
+        lane = simpledialog.askinteger("Custom Note", "Where do you want the note?")
+        if lane == None:
+            lane = 0
         speed = simpledialog.askinteger("Custom Note", "How fast do you want the note?")
         if speed == None:
            speed = 1
@@ -87,7 +102,7 @@ class Project:
         self.canvas.delete("all")
 
     def save(self):
-        with open(self.name + ".map.json", "w") as f:
+        with open(self.path, "w") as f:
             json.dump(self.data, f)
 
     def setseconds(self):
@@ -154,7 +169,7 @@ class Project:
 
     def editmode(self):
         self.clearcanvas()
-        tempdata = generate_fake_map_data(self.data["totalSeconds"])
+        tempdata = generate_fake_map_data(self.data["totalSeconds"], self.data["defaultSpeed"])
         for obj in tempdata:
             lane = obj["lane"]
             speed = obj["speed"]
@@ -185,9 +200,9 @@ def new_project():
     # create file with project name
     fp = open(project_name + ".map.json", "w")
     # write default json
-    fp.write("{\"totalSeconds\": 0, \"data\":[]}")
+    fp.write("{\"totalSeconds\": 0,\"defaultSpeed\": 1, \"data\":[]}")
     fp.close()
-    internal_project_init("{\"totalSeconds\": 0, \"data\":[]}", project_name)
+    internal_project_init("{\"totalSeconds\": 0,\"defaultSpeed\": 1, \"data\":[]}", project_name)
 
 def load_project():
     # open file picker dialog
@@ -202,13 +217,13 @@ def load_project():
     name = name.split("/")[-1]
     # split fname at .
     name = name.split(".")[0]
-    internal_project_init(f.read(), name)
+    internal_project_init(f.read(), name, f.name)
 
-def internal_project_init(raw, name):
+def internal_project_init(raw, name, path=None):
     # parse json
     data = json.loads(raw)
     # create a new project
-    project = Project(data, name)
+    project = Project(data, name, path)
     # add project to menu
     menu.add_cascade(label="Project", menu=project.menu)
     # disable new project button and load project button
