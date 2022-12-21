@@ -32,9 +32,12 @@ class Project:
         self.height = self.data["totalSeconds"] * 125
         self.name = name
         self.path = path
+        self.changespeedenabled = False
+        self.mode = "view"
         if self.path == None:
             self.path = "./" + self.name + ".map.json"
         self.menu = Menu(menu, tearoff=0)
+        self.menu.add_command(label="Help", command=self.help)
         self.menu.add_command(label="Save", command=self.save)
         self.menu.add_command(label="Close", command=self.close)
         self.menu.add_command(label="View mode", command=self.viewmode)
@@ -51,12 +54,40 @@ class Project:
         self.vbar = Scrollbar(self.frame, orient=VERTICAL)
         self.vbar.pack(side=RIGHT, fill=Y)
         self.vbar.config(command=self.canvas.yview)
+        self.canvas.config(highlightthickness=0)
         self.canvas.config(width=700, height=self.height)
         self.canvas.config(yscrollcommand=self.vbar.set)
         self.canvas.pack(side=LEFT, expand=True, fill=BOTH)
         # bind the mouse wheel to the canvas
         self.canvas.bind_all("<MouseWheel>", lambda event: self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units"))
+        self.canvas.bind("<Tab>", self.togglemode)
+        # on CTRL+S save
+        self.canvas.bind("<Control-s>", self.save)
         self.viewmode()
+
+    def help(self):
+        # create a new window
+        helpwindow = Toplevel(root)
+        helpwindow.title("Help")
+        helpwindow.geometry("500x500")
+        helpwindow.resizable(False, False)
+        # create text
+        text = Text(helpwindow, width=500, height=500)
+        text.pack()
+        text.insert(END, "Welcome to the help menu for 4koneko mapping tool.\n")
+        text.insert(END, "Hotkeys:\n\n")
+        text.insert(END, "CTRL+S: Save\n")
+        text.insert(END, "TAB: Toggle between view and edit mode\n")
+        text.insert(END, "---(when moused over a note)----\n")
+        text.insert(END, "W - Increase speed\n")
+        text.insert(END, "S - Decrease speed\n")
+        text.config(state=DISABLED)
+
+    def togglemode(self, _):
+        if self.mode == "view":
+            self.editmode()
+        else:
+            self.viewmode()
 
     def close(self):
         self.frame.destroy()
@@ -94,14 +125,10 @@ class Project:
         h = 125
         self.canvas.create_text(x + w / 2, y + h / 2, text="Speed: " + str(obj["speed"]))
 
-    def hideinfo(self, obj):
-        self.clearcanvas()
-        self.viewmode()
-
     def clearcanvas(self):
         self.canvas.delete("all")
 
-    def save(self):
+    def save(self, _ = None):
         with open(self.path, "w") as f:
             json.dump(self.data, f)
 
@@ -135,7 +162,23 @@ class Project:
         self.data["data"].append(obj)
         self.viewmode()
 
+    def changespeed(self, obj, change):
+        obj["speed"] += change
+        if obj["speed"] <= 0:
+            obj["speed"] = 1
+        self.viewmode()
+
+    def enabledisablespeed(self, obj):
+        self.changespeedenabled = not self.changespeedenabled
+        if self.changespeedenabled:
+            # globally bind W and S to increase and decrease the speed
+            self.canvas.bind_all("<w>", lambda event, obj=obj: self.changespeed(obj, 1))
+            self.canvas.bind_all("<s>", lambda event, obj=obj: self.changespeed(obj, -1))
+        else:
+            self.canvas.unbind_all("<w>")
+            self.canvas.unbind_all("<s>")
     def viewmode(self):
+        self.mode = "view"
         self.clearcanvas()
         # for every object in the data, draw it
         for obj in self.data["data"]:
@@ -148,11 +191,14 @@ class Project:
             # calculate the width and height
             w = 125
             h = 125 / 2
-            self.canvas.tag_bind(self.canvas.create_rectangle(x, y, x + w, y + h, fill="#B5B5B5"), "<Button-1>", lambda event, obj=obj: self.edit(obj))
-            # create a text object in the middle of the rectangle with the speed, white color, impact font, black border    
+            rect = self.canvas.create_rectangle(x, y, x + w, y + h, fill="#B5B5B5")
+            text = self.canvas.create_text(x + w / 2, y + h / 2, text="Speed: " + str(speed) + "\nSeconds: " + str(seconds))
+            self.canvas.tag_bind(rect, "<Button-1>", lambda event, obj=obj: self.edit(obj))
+            self.canvas.tag_bind(rect, "<Enter>", lambda event, obj=obj: self.enabledisablespeed(obj))
+            self.canvas.tag_bind(rect, "<Leave>", lambda event, obj=obj: self.enabledisablespeed(obj))
+            self.canvas.tag_bind(text, "<Button-1>", lambda event, obj=obj: self.edit(obj))
+            # when mouse over the rectangle, left and right arrow change the speed
 
-            self.canvas.tag_bind(self.canvas.create_text(x + w / 2, y + h / 2, text="Speed: " + str(speed) + "\nSeconds: " + str(seconds)), "<Button-1>", lambda event, obj=obj: self.edit(obj))
-    
     def makeorbreak(self, obj):
         cobj = {"seconds": obj["seconds"], "lane": obj["lane"]}
         cdata = []
@@ -168,6 +214,7 @@ class Project:
         self.editmode()
 
     def editmode(self):
+        self.mode = "edit"
         self.clearcanvas()
         tempdata = generate_fake_map_data(self.data["totalSeconds"], self.data["defaultSpeed"])
         for obj in tempdata:
