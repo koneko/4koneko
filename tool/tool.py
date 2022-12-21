@@ -39,15 +39,16 @@ class Project:
         self.menu = Menu(menu, tearoff=0)
         self.menu.add_command(label="Help", command=self.help)
         self.menu.add_command(label="Save", command=self.save)
-        self.menu.add_command(label="Close", command=self.close)
         self.menu.add_command(label="View mode", command=self.viewmode)
         self.menu.add_command(label="Edit mode", command=self.editmode)
-        self.extras = Menu(self.menu, tearoff=0)
+        self.menu.add_command(label="Close", command=self.close)
+        # self.extras as a separate menu not as a cascade
+        self.extras = Menu(menu, tearoff=0)
+        # self.menu.add_cascade(label="Extras", menu=self.extras)
         self.extras.add_command(label="Export to Base64", command=self.export)
         self.extras.add_command(label="Custom Note", command=self.customnote)
         self.extras.add_command(label="Set Seconds", command=self.setseconds)
         self.extras.add_command(label="Set Default speed", command=self.setspeed)
-        self.menu.add_cascade(label="Extras", menu=self.extras)
         self.frame = Frame(root, width=700, height=self.height)
         self.frame.pack(expand=True, fill=BOTH)
         self.canvas = Canvas(self.frame, bg='#F0F0F0', width=700, height=self.height, scrollregion=(0, 0, 1000, self.height))
@@ -92,6 +93,7 @@ class Project:
     def close(self):
         self.frame.destroy()
         menu.delete("Project")
+        menu.delete("Extras")
         # enable file menu
         menu.entryconfig("File", state=NORMAL)
 
@@ -273,6 +275,7 @@ def internal_project_init(raw, name, path=None):
     project = Project(data, name, path)
     # add project to menu
     menu.add_cascade(label="Project", menu=project.menu)
+    menu.add_cascade(label="Extras", menu=project.extras)
     # disable new project button and load project button
     menu.entryconfig(0, state=DISABLED)
     menu.entryconfig(1, state=DISABLED)
