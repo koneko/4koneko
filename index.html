@@ -1,20 +1,231 @@
-<script src="https://pixijs.download/v6.3.2/pixi.js"></script>
-<title>4koneko</title>
-<link
-	rel="shortcut icon"
-	href="https://hub.koneko.link/cdn/icons/black.png"
-	type="image/x-icon"
-/>
-<link rel="stylesheet" href="/css/snackbar.css" />
-<link rel="stylesheet" href="/css/modal.css" />
-<link rel="stylesheet" href="/css/engine.css" />
-<div class="dev">
-	<span id="tickerdelta"></span>
-	<span id="score">Score: 0</span>
-</div>
-<div class="canvas"></div>
-<div id="snackbar"></div>
-<div id="open-modal" class="modal-window" style="display: block">
-	<div id="modal-content"></div>
-</div>
-<script src="script.js"></script>
+<!DOCTYPE html>
+<html>
+	<body>
+		<div class="bg">
+			<div class="init">
+				<div class="title">
+					<div>4</div>
+					<div>k</div>
+					<div>o</div>
+					<div>n</div>
+					<div>e</div>
+					<div>k</div>
+					<div>o</div>
+				</div>
+				<div style="margin-top: 10px; text-align: left">
+					<p onclick="goToMapSelector()">Play</p>
+					<div style="margin-top: 2.5px"></div>
+					<p onclick="addMaps()">Add maps</p>
+					<div style="margin-top: 2.5px"></div>
+					<p onclick="settings()">Settings</p>
+				</div>
+			</div>
+		</div>
+		<div class="items"></div>
+	</body>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+		html,
+		body {
+			height: 100%;
+			width: 100%;
+			background-color: black;
+			color: white;
+		}
+		.title {
+			font-size: 75px;
+			font-family: "Courier New", Courier, monospace;
+			letter-spacing: 5px;
+			text-align: left;
+			margin-left: 10px;
+			letter-spacing: -5px;
+		}
+		p {
+			cursor: pointer;
+			font-size: 20px;
+		}
+		p:hover {
+			animation: bg 10s infinite;
+		}
+		/* ignore .bg */
+		@keyframes bg {
+			0% {
+				color: #ffffff;
+			}
+			25% {
+				color: #369eff;
+			}
+			50% {
+				color: #00eeff;
+			}
+			75% {
+				color: #369eff;
+			}
+			100% {
+				color: #e4f5ff;
+			}
+		}
+
+		.title > div {
+			animation: bounce 4s infinite, bg 5s infinite;
+			/* add bg animation */
+			/* make it behave like a span */
+			display: inline-block;
+		}
+		/* for the 2nd child */
+		.title > div:nth-child(2) {
+			animation-delay: 0.5s;
+		}
+		/* same for the others */
+		.title > div:nth-child(3) {
+			animation-delay: 1s;
+		}
+		.title > div:nth-child(4) {
+			animation-delay: 1.5s;
+		}
+		.title > div:nth-child(5) {
+			animation-delay: 2s;
+		}
+		.title > div:nth-child(6) {
+			animation-delay: 2.5s;
+		}
+		.title > div:nth-child(7) {
+			animation-delay: 3s;
+		}
+
+		@keyframes bounce {
+			0% {
+				transform: translateY(0px);
+			}
+			25% {
+				transform: translateY(10px);
+			}
+			50% {
+				transform: translateY(-10px);
+			}
+			75% {
+				transform: translateY(10px);
+			}
+			100% {
+				transform: translateY(0px);
+			}
+		}
+
+		.init {
+			color: white;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			/* from top */
+			margin-top: 45%;
+			gap: 10px;
+			text-align: left;
+			width: 100%;
+		}
+		body {
+			display: grid;
+			grid-template-columns: 2fr 2fr;
+		}
+		.items {
+			margin-top: 10%;
+			text-align: right;
+			gap: 15px;
+		}
+		.map {
+			border: 2.5px solid white;
+			border-radius: 5px;
+			/*padding-left: 200px; */
+			padding-right: 100%;
+			padding-top: 5px;
+			width: 200px;
+			height: 50px;
+			display: flex;
+			align-items: center;
+			justify-content: space-around;
+		}
+		.select {
+			position: absolute;
+			z-index: 2;
+			animation: pop 1s;
+			animation-fill-mode: forwards;
+		}
+		.bozo {
+			margin-top: 60px;
+		}
+		@keyframes pop {
+			100% {
+				transform: translateX(-5%);
+			}
+		}
+	</style>
+	<script>
+		function goToMapSelector() {
+			document.querySelector(".bg").innerHTML = "";
+			// load maps
+			let items = document.querySelector(".items");
+			let arr = [];
+			// first map for play testing
+			let map = document.createElement("div");
+			map.classList.add("map");
+			div.innerHTML = `
+                <span class="map-name">Test map</span>
+		        <span class="map-creator">by: Koneko</span>
+            `;
+			items.appendChild(map);
+			arr.forEach((div) => {
+				div.onmouseenter = (e) => {
+					let thisnum = arr.indexOf(div);
+					let num = thisnum + 1;
+					arr[thisnum].classList.add("select");
+					arr[num].classList.add("bozo");
+				};
+				div.onmouseleave = (e) => {
+					let thisnum = arr.indexOf(div);
+					let num = thisnum + 1;
+					arr[thisnum].classList.remove("select");
+					arr[num].classList.remove("bozo");
+				};
+			});
+		}
+		function addMaps() {
+			window.location.href = "map.html";
+		}
+		function settings() {
+			window.location.href = "settings.html";
+		}
+		// 	let items = document.querySelector(".items");
+		// 	let arr = [];
+		// 	let i = 1;
+		// 	for (; i <= 10; i++) {
+		// 		let div = document.createElement("div");
+		// 		div.innerHTML = `
+		// <span class="map-name">Cool name #${i}</span>
+		// <span class="map-creator">by: Koneko</span>
+		// <span class="difficulty-${i + 10}">${i + 10}</span>
+		// `;
+		// 		arr.push(div);
+		// 		div.classList.add("map");
+		// 		div.classList.add("item-" + i);
+		// 		items.appendChild(div);
+		// 	}
+		// 	arr.forEach((div) => {
+		// 		div.onmouseenter = (e) => {
+		// 			let thisnum = arr.indexOf(div);
+		// 			let num = thisnum + 1;
+		// 			arr[thisnum].classList.add("select");
+		// 			arr[num].classList.add("bozo");
+		// 		};
+		// 		div.onmouseleave = (e) => {
+		// 			let thisnum = arr.indexOf(div);
+		// 			let num = thisnum + 1;
+		// 			arr[thisnum].classList.remove("select");
+		// 			arr[num].classList.remove("bozo");
+		// 		};
+		// 	});
+	</script>
+</html>
