@@ -1,0 +1,142 @@
+<style>
+	#div {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 10px;
+		text-align: left;
+		width: 100%;
+		height: 100%;
+		background-color: white;
+		color: white;
+		text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+			1px 1px 0 #000;
+	}
+	a {
+		color: dodgerblue;
+	}
+</style>
+<div id="div"></div>
+<script src="/zip/jszip.min.js"></script>
+<script src="/zip/yaml.js"></script>
+<script>
+	// params
+	const params = new URLSearchParams(window.location.search);
+	// get file
+	let inputfile = params.get("file");
+	// if file is not null
+	if (inputfile != null) {
+		fetch("https://maps.4koneko.world/" + inputfile + ".qp")
+			.then((res) => res.blob())
+			.then(async (file) => {
+				let loaded = await JSZip.loadAsync(file);
+				let zip = new JSZip();
+				loaded.forEach((path, file) => {
+					if (file.name.endsWith(".qua")) {
+						// get file content
+						file.async("string").then((content) => {
+							// do something with content
+							let map = YAML.parse(content);
+							maps.push(map);
+						});
+					}
+					if (file.name.endsWith(".png") || file.name.endsWith(".jpg")) {
+						// get file content
+						file.async("base64").then((content) => {
+							// do something with content
+							// set it as background image for #div
+							document.getElementById("div").style.backgroundImage =
+								"url(data:image/png;base64," + content + ")";
+						});
+					}
+				});
+				// wait for maps to be populated
+				while (maps.length == 0) {
+					await new Promise((r) => setTimeout(r, 100));
+				}
+				// populate div
+				let div = document.getElementById("div");
+				// add title
+				let title = document.createElement("h1");
+				title.innerText = maps[0].Title;
+				div.appendChild(title);
+				// add maps
+				maps.forEach((map) => {
+					console.log(map);
+					let mapDiv = document.createElement("div");
+					mapDiv.innerHTML = `
+					<p style="font-weight: bold;">${map.DifficultyName} <a href="#" onclick="playinner('${inputfile}', '${map.MapId}')">play</a></p>
+					`;
+					div.appendChild(mapDiv);
+				});
+			});
+	}
+	let files = [];
+	let maps = [];
+	let music = null;
+	function playinner(file, mapid) {
+		let script = parent.document.createElement("script");
+		script.innerHTML = `playMap("${file}", "${mapid}")`;
+		parent.document.body.appendChild(script);
+	}
+
+	// not used!
+	async function thing() {
+		// get file
+		var file = document.getElementById("file").files[0];
+
+		let loaded = await JSZip.loadAsync(file);
+		let zip = new JSZip();
+		loaded.forEach((path, file) => {
+			if (file.name.endsWith(".qua")) {
+				// get file content
+				file.async("string").then((content) => {
+					// do something with content
+					let map = YAML.parse(content);
+					maps.push(map);
+				});
+			}
+			if (file.name.endsWith(".mp3")) {
+				// get file content
+				file.async("base64").then((content) => {
+					// do something with content
+					music = content;
+				});
+			}
+		});
+		// while music ==null
+		while (music == null) {
+			await new Promise((r) => setTimeout(r, 100));
+		}
+		// load music
+		let audio = new Audio("data:audio/mp3;base64," + music);
+		// set audio to half
+		audio.volume = 0.5;
+		audio.play();
+	}
+	function search() {
+		let query = document.getElementById("query").value;
+		let output = document.querySelector(".output");
+		output.innerHTML = "";
+		fetch(
+			"https://api.quavergame.com/v1/mapsets/maps/search?search=" +
+				query +
+				"&mode=1"
+		)
+			.then((res) => res.json())
+			.then((data) => {
+				let i = 0;
+				data.mapsets.forEach((map) => {
+					let div = document.createElement("div");
+					div.innerHTML = `
+                        <h2>${map.title}</h2>
+                        <span>${map.artist} | ${map.creator_username}</span>
+                        <span>${map.difficulty_range[0]}</span>
+                        <button onclick="open('${map.id}', "${i}")">open</button>
+                    `;
+					output.appendChild(div);
+				});
+			});
+	}
+</script>

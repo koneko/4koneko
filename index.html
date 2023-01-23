@@ -13,15 +13,14 @@
 					<div>o</div>
 				</div>
 				<div style="margin-top: 10px; text-align: left">
-					<p onclick="goToMapSelector()">Play</p>
+					<p onclick="addMaps()">Play</p>
 					<div style="margin-top: 2.5px"></div>
-					<p onclick="addMaps()">Add maps</p>
+					<p onclick="settings()">Game Settings</p>
 					<div style="margin-top: 2.5px"></div>
-					<p onclick="settings()">Settings</p>
+					<p onclick="customMap()">Custom map</p>
 				</div>
 			</div>
 		</div>
-		<div class="items"></div>
 	</body>
 	<style>
 		* {
@@ -131,101 +130,16 @@
 			display: grid;
 			grid-template-columns: 2fr 2fr;
 		}
-		.items {
-			margin-top: 10%;
-			text-align: right;
-			gap: 15px;
-		}
-		.map {
-			border: 2.5px solid white;
-			border-radius: 5px;
-			/*padding-left: 200px; */
-			padding-right: 100%;
-			padding-top: 5px;
-			width: 200px;
-			height: 50px;
-			display: flex;
-			align-items: center;
-			justify-content: space-around;
-		}
-		.select {
-			position: absolute;
-			z-index: 2;
-			animation: pop 1s;
-			animation-fill-mode: forwards;
-		}
-		.bozo {
-			margin-top: 60px;
-		}
-		@keyframes pop {
-			100% {
-				transform: translateX(-5%);
-			}
-		}
 	</style>
 	<script>
-		function goToMapSelector() {
-			document.querySelector(".bg").innerHTML = "";
-			// load maps
-			let items = document.querySelector(".items");
-			let arr = [];
-			// first map for play testing
-			let map = document.createElement("div");
-			map.classList.add("map");
-			div.innerHTML = `
-                <span class="map-name">Test map</span>
-		        <span class="map-creator">by: Koneko</span>
-            `;
-			items.appendChild(map);
-			arr.forEach((div) => {
-				div.onmouseenter = (e) => {
-					let thisnum = arr.indexOf(div);
-					let num = thisnum + 1;
-					arr[thisnum].classList.add("select");
-					arr[num].classList.add("bozo");
-				};
-				div.onmouseleave = (e) => {
-					let thisnum = arr.indexOf(div);
-					let num = thisnum + 1;
-					arr[thisnum].classList.remove("select");
-					arr[num].classList.remove("bozo");
-				};
-			});
-		}
 		function addMaps() {
 			window.location.href = "map.html";
 		}
 		function settings() {
 			window.location.href = "settings.html";
 		}
-		// 	let items = document.querySelector(".items");
-		// 	let arr = [];
-		// 	let i = 1;
-		// 	for (; i <= 10; i++) {
-		// 		let div = document.createElement("div");
-		// 		div.innerHTML = `
-		// <span class="map-name">Cool name #${i}</span>
-		// <span class="map-creator">by: Koneko</span>
-		// <span class="difficulty-${i + 10}">${i + 10}</span>
-		// `;
-		// 		arr.push(div);
-		// 		div.classList.add("map");
-		// 		div.classList.add("item-" + i);
-		// 		items.appendChild(div);
-		// 	}
-		// 	arr.forEach((div) => {
-		// 		div.onmouseenter = (e) => {
-		// 			let thisnum = arr.indexOf(div);
-		// 			let num = thisnum + 1;
-		// 			arr[thisnum].classList.add("select");
-		// 			arr[num].classList.add("bozo");
-		// 		};
-		// 		div.onmouseleave = (e) => {
-		// 			let thisnum = arr.indexOf(div);
-		// 			let num = thisnum + 1;
-		// 			arr[thisnum].classList.remove("select");
-		// 			arr[num].classList.remove("bozo");
-		// 		};
-		// 	});
+		function customMap() {
+			window.location.href = "selector.html";
+		}
 	</script>
 </html>

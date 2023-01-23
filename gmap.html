@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Map Management</title>
+		<!-- google import -->
+		<!-- <script src="https://apis.google.com/js/client.js?onload=gapiLoaded"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment.min.js"></script>
+		<script src="gapi.js"></script>
+		<script src="gapi-map.js"></script> -->
+	</head>
+	<body>
+		<main>
+			<div class="big-text">
+				<p>Welcome to the map management page.</p>
+				<p>
+					Here you have to log in with google and allow access to Google Drive
+					in order to store your maps across sessions.
+				</p>
+				<p>
+					In addition to this, 4koneko acts more as a quaver web edition
+					(tailored to me, but still) than a seperate game, which is why it only
+					accepts .qp map files found on the
+					<a
+						style="color: dodgerblue"
+						href="https://quavergame.com/maps?mode=1&status=2&status=1"
+						>quavergame.com</a
+					>
+					website.
+				</p>
+				<p>
+					Fear not, all you need to do is download them from there (steam
+					account required) and upload them to a folder in your google drive
+					called "4koneko maps".
+				</p>
+				<p>
+					They will show up here and you can safely go to the map selector and
+					start playing.
+				</p>
+				<p>
+					Before this please, log in to google. (this site's source code is
+					public, so nothing malicious is going on in the background)
+				</p>
+				<div>
+					<button id="google-login-btn">Login with Google</button>
+				</div>
+			</div>
+			<div></div>
+			<a href="index.html" style="color: dodgerblue">go back</a>
+		</main>
+	</body>
+	<style>
+		html,
+		body {
+			width: 100%;
+			height: 100%;
+			padding: 0;
+			margin: 0;
+		}
+		main {
+			width: 100%;
+			height: 100%;
+			background-color: black;
+			color: white;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-direction: column;
+		}
+		.big-text {
+			font-size: 20px;
+		}
+	</style>
+</html>
