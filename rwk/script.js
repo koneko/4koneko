@@ -3,6 +3,8 @@ const screenWidth = window.innerWidth
 const screenHeight = window.innerHeight
 
 let globalInitialStartTime = 0
+let globalName = null
+let globalDifficulty = null
 
 document.querySelector("div.canvas").appendChild(app.view);
 // make the canvas fill the screen
@@ -104,8 +106,6 @@ class Game {
         this.music.play()
     }
     update () {
-        app.stage.removeChildren()
-        this.createLanes()
         this.updateKeylog()
         this.updateArrows()
     }
@@ -248,6 +248,8 @@ let renderer = new Renderer()
 map.loadId(file, id)
 let game = new Game()
 game.createLanes()
+// create text
+let text = renderer.createText(`${globalName}\n${globalDifficulty}`, { fontFamily: 'Arial', fontSize: 24, fill: 0xff1010, align: 'center' });
 setTimeout(() => {
     game.loadMap(map.exportMap())
     game.start()

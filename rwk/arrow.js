@@ -8,6 +8,7 @@ class Arrow {
         this.y = 0
         this.object = null
         this.color = 0xFFFFFF
+        this.draw(this.x, this.y)
     }
     update () {
         this.move()
@@ -44,7 +45,7 @@ class Arrow {
         game.destroyArrow(this)
     }
     move () {
-        this.y += 2.5 * this.speed * game.globalSpeed
-        this.draw(this.x, this.y)
+        this.y += Math.round(2.5 * this.speed * game.globalSpeed)
+        this.object.y = this.y
     }
 }

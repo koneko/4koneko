@@ -25,6 +25,8 @@ class Map {
                         let parsed = YAML.parse(content)
                         if (parsed["MapId"] != id) return
                         let notes = parsed["HitObjects"]
+                        globalName = parsed["Title"]
+                        globalDifficulty = parsed["Difficulty"]
                         globalInitialStartTime = parsed["TimingPoints"][0]["StartTime"]
                         console.log("initial start time", globalInitialStartTime)
                         notes.forEach(note => {
