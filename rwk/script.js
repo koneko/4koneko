@@ -5,6 +5,7 @@ const screenHeight = window.innerHeight
 let globalInitialStartTime = 0
 let globalName = null
 let globalDifficulty = null
+let globalText = null
 
 document.querySelector("div.canvas").appendChild(app.view);
 // make the canvas fill the screen
@@ -249,10 +250,9 @@ map.loadId(file, id)
 let game = new Game()
 game.createLanes()
 // create text
-let text = renderer.createText(`${globalName}\n${globalDifficulty}`, { fontFamily: 'Arial', fontSize: 24, fill: 0xff1010, align: 'center' });
 setTimeout(() => {
     game.loadMap(map.exportMap())
     game.start()
-    // seek music to globalinitialstarttime value (converting the value to seconds)
+    renderer.deleteObject(globalText)
     game.music.play()
 }, 2000);

@@ -22,7 +22,7 @@ class Arrow {
         this.object = arrow
     }
     check () {
-        if (this.y > 700) {
+        if (this.y > calculateY() + 100) {
             game.destroyArrow(this)
             game.removePoints()
         }

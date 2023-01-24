@@ -26,7 +26,7 @@ class Map {
                         if (parsed["MapId"] != id) return
                         let notes = parsed["HitObjects"]
                         globalName = parsed["Title"]
-                        globalDifficulty = parsed["Difficulty"]
+                        globalDifficulty = parsed["DifficultyName"]
                         globalInitialStartTime = parsed["TimingPoints"][0]["StartTime"]
                         console.log("initial start time", globalInitialStartTime)
                         notes.forEach(note => {
@@ -34,6 +34,9 @@ class Map {
                             let seconds = parseInt(note["StartTime"]) - parseInt(globalInitialStartTime)
                             this.createNote(lane, seconds, 8)
                         })
+                        // center text around screenwidth / 2
+                        globalText = renderer.createText(screenWidth / 2, screenHeight * 0.05, `Song: ${globalName}\nDifficulty: ${globalDifficulty}`, { fontSize: 24, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
+                        globalText.x -= globalText.width / 2
                     })
                 }
                 if (file.name.endsWith(".mp3")) {
