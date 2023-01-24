@@ -116,7 +116,7 @@ class Game {
             down: this.down.pressed,
             right: this.right.pressed,
             delta: this.delta,
-            seconds: this.timerMS
+            seconds: this.ms
         }
         if (this.keylog.length > 999) this.keylog.shift()
         this.keylog.push(obj)
@@ -126,12 +126,13 @@ class Game {
         this.notes.forEach(note => {
             if (note.seconds <= this.ms && note.consumed == false) {
                 note.consumed = true
-                let arrow = new Arrow(game, note.lane, note.speed, note.id)
+                let arrow = new Arrow(game, note.lane, note.speed, note.id, this.ms)
                 this.arrows.push(arrow)
                 console.warn("arrow created", arrow.lane, arrow.index)
             }
         })
         if (this.arrows == null) return
+        console.log(`arrows: ${this.arrows.length}`)
         this.arrows.forEach(arrow => {
             arrow.update()
         })

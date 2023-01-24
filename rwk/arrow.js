@@ -1,5 +1,5 @@
 class Arrow {
-    constructor (game, lane, speedMultiplier, index) {
+    constructor (game, lane, speedMultiplier, index, ms) {
         this.game = game
         this.lane = lane
         this.speed = speedMultiplier
@@ -7,22 +7,16 @@ class Arrow {
         this.x = getXFromLaneNum(lane)
         this.y = 0
         this.object = null
-        this.color = null
-        if (this.index % 2 == 0) {
-            this.color = 0xFFFF00
-        } else {
-            this.color = 0xF2A900
-        }
+        this.color = 0xFFFFFF
     }
     update () {
         this.move()
         this.check()
     }
     draw (x, y) {
-        let width = 100
-        let height = 100
+        let width = 120
         let color = this.color
-        let arrow = renderer.createRectangle(x, y, width, height, color)
+        let arrow = renderer.createCircle(x, y, width, color)
         arrow.zindex = this.index
         this.object = arrow
     }

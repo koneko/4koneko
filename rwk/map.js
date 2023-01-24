@@ -26,10 +26,11 @@ class Map {
                         if (parsed["MapId"] != id) return
                         let notes = parsed["HitObjects"]
                         globalInitialStartTime = parsed["TimingPoints"][0]["StartTime"]
+                        console.log("initial start time", globalInitialStartTime)
                         notes.forEach(note => {
                             let lane = parseInt(note["Lane"]) - 1
-                            let seconds = note["StartTime"]
-                            this.createNote(lane, seconds, 6.5)
+                            let seconds = parseInt(note["StartTime"]) - parseInt(globalInitialStartTime)
+                            this.createNote(lane, seconds, 8)
                         })
                     })
                 }

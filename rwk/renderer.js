@@ -25,7 +25,6 @@ class Renderer {
         circle.drawCircle(x, y, radius / 2);
         circle.endFill();
         app.stage.addChild(circle);
-        this.objects.push(circle)
         return circle;
     }
     createText (x, y, rawtext, style) {
