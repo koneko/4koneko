@@ -22,7 +22,9 @@ class Renderer {
     createCircle (x, y, radius, color) {
         let circle = new PIXI.Graphics();
         circle.beginFill(color);
+        circle.lineStyle(2, 0x000000, 1);
         circle.drawCircle(x, y, radius / 2);
+        // black outline
         circle.endFill();
         app.stage.addChild(circle);
         return circle;

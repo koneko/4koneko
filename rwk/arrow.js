@@ -9,6 +9,7 @@ class Arrow {
         this.object = null
         this.color = 0xFFFFFF
         this.draw(this.x, this.y)
+        this.ms = ms
     }
     update () {
         this.move()
@@ -26,23 +27,6 @@ class Arrow {
             game.destroyArrow(this)
             game.removePoints()
         }
-    }
-    calcY () {
-        return 600 - this.y
-    }
-    grade (y) {
-        if (y < 75) {
-            // very good :o
-            game.addPoints(100)
-        } else if (y < 125) {
-            // nice but could be better
-            game.addPoints(50)
-        } else if (y < 250) {
-            //dog water 🤢
-            game.addPoints(20)
-        }
-        game.correct++
-        game.destroyArrow(this)
     }
     move () {
         this.y += Math.round(2.5 * this.speed * game.globalSpeed)

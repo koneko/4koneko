@@ -20,7 +20,6 @@ class Game {
         this.seconds = 0.0
         this.points = 0
         this.globalSpeed = 1
-        this.correct = 0
         this.startTime = null
         this.ms = 0
         this.left = { key: "d", pressed: false }
@@ -33,6 +32,14 @@ class Game {
             { x: getXFromLaneNum(2), y: calculateY(), width: 128, height: 200, color: 0xFFFFFF, lane: null, key: this.down, valid: true },
             { x: getXFromLaneNum(3), y: calculateY(), width: 128, height: 200, color: 0xFFFFFF, lane: null, key: this.right, valid: true },
         ]
+        this.judgements = {
+            marvelous: 0,
+            perfect: 0,
+            great: 0,
+            good: 0,
+            okay: 0,
+            miss: 0
+        }
         this.keylog = []
         this.notes = []
         this.arrows = []
@@ -158,13 +165,22 @@ class Game {
             let lane = this.lanes[i]
             // this.lanes[i].lane = renderer.createRectangle(lane.x, lane.y, lane.width, lane.height, lane.color)
             this.lanes[i].lane = renderer.createCircle(lane.x, lane.y, lane.width, lane.color)
+            this.lanes[i].lane.zIndex = 99
         }
+    }
+    removeLanes () {
+        this.lanes.forEach(lane => {
+            lane.lane.destroy()
+        })
     }
     press (key) {
         let num = getNum(key)
         console.warn("key press", num)
+        this.lanes[num].lane.color = 0x808080
         this.lanes[num].color = 0x808080
         this.lanes[num].key.pressed = true
+        this.removeLanes()
+        this.createLanes()
         let lastLog = getLastLog(this.keylog)
         let number = 0
         lastLog.forEach(item => {
@@ -186,10 +202,14 @@ class Game {
         //hit calculation
         if (this.arrows == null) return
         this.arrows.forEach(arrow => {
-            let yArrow = arrow.calcY()
-            console.log(yArrow)
-            if (yArrow < 300 && num == arrow.lane && this.lanes[num].valid == true) {
-                arrow.grade(yArrow)
+            let arrowMS = arrow.ms + globalInitialStartTime
+            let ms = this.ms
+            // different is how far you were of from perfection
+            let different = arrowMS - ms
+            if (different < 0) different = different * -1
+            if (different < 165 && num == arrow.lane && this.lanes[num].valid == true) {
+                console.warn("hit", arrow.lane, arrow.index)
+                this.gradeArrow(arrow, different)
                 this.lanes[num].valid = false
             }
         })
@@ -198,6 +218,9 @@ class Game {
         let num = getNum(key)
         console.warn("key release", num)
         this.lanes[num].color = 0xFFFFFF
+        this.lanes[num].lane.color = 0xFFFFFF
+        this.removeLanes()
+        this.createLanes()
         this.lanes[num].key.pressed = false
         this.lanes[num].valid = true
     }
@@ -235,6 +258,35 @@ class Game {
         console.warn("arrow destroyed", arrow.lane, arrow.index)
         app.stage.removeChild(arrow.object)
         this.arrows.splice(this.arrows.indexOf(arrow), 1)
+    }
+    gradeArrow (arrow, different) {
+        // judgement timings are pulled from https://wiki.quavergame.com/docs/gameplay#judgement-timing-windows with 2ms added to each
+        if (different < 20) {
+            // marvelous judgement
+            this.judgements.marvelous++
+            this.addPoints(100)
+        } else if (different < 45) {
+            // perfect judgement
+            this.judgements.perfect++
+            this.addPoints(80)
+        } else if (different < 78) {
+            // great judgement
+            this.judgements.great++
+            this.addPoints(50)
+        } else if (different < 108) {
+            // good judgement
+            this.judgements.good++
+            this.addPoints(30)
+        } else if (different < 129) {
+            // okay judgement
+            this.judgements.okay++
+            this.addPoints(10)
+        } else {
+            // miss judgement
+            this.judgements.miss++
+            this.removePoints()
+        }
+        this.destroyArrow(arrow)
     }
 }
 
