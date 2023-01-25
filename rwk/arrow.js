@@ -32,6 +32,7 @@ class Arrow {
             game.combo = 0
             if (game.comboText == null) game.comboText = renderer.createText(screenWidth / 2, screenHeight * 0.45, game.combo, { fontSize: 30, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
             game.comboText.text = game.combo
+            game.comboUpd()
             game.removePoints()
         }
     }

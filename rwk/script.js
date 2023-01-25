@@ -319,7 +319,13 @@ class Game {
         }
         if (this.comboText == null) this.comboText = renderer.createText(screenWidth / 2, screenHeight * 0.45, this.combo, { fontSize: 30, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
         this.comboText.text = this.combo
+        this.comboUpd()
         this.destroyArrow(arrow)
+    }
+    comboUpd () {
+        if (this.comboText != null) {
+            this.comboText.x = (app.renderer.width - this.comboText.width) / 2
+        }
     }
 }
 
