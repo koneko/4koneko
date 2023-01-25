@@ -45,6 +45,8 @@ class Game {
             devTextObj: null,
             judgementsObj: null
         }
+        this.comboText = null
+        this.combo = 0
         this.keylog = []
         this.notes = []
         this.arrows = []
@@ -283,32 +285,40 @@ class Game {
             this.judgements.marvelous++
             this.addPoints(100)
             this.createJudgementText("Marvelous", 0xFFFFFF)
+            this.combo++
         } else if (different < 45) {
             // perfect judgement
             this.judgements.perfect++
             this.addPoints(80)
             this.createJudgementText("Perfect", 0xFFFF19)
+            this.combo++
         } else if (different < 78) {
             // great judgement
             this.judgements.great++
             this.addPoints(50)
             this.createJudgementText("Great", 0x4DFF4D)
+            this.combo++
         } else if (different < 108) {
             // good judgement
             this.judgements.good++
             this.addPoints(30)
-            this.createJudgementText("Marvelous", 0x80AAFF)
+            this.createJudgementText("Good", 0x80AAFF)
+            this.combo++
         } else if (different < 129) {
             // okay judgement
             this.judgements.okay++
             this.addPoints(10)
             this.createJudgementText("Okay", 0x00FFFFF)
+            this.combo++
         } else {
             // miss judgement
             this.judgements.miss++
             this.removePoints()
             this.createJudgementText("Miss", 0xFF3333)
+            this.combo = 0
         }
+        if (this.comboText == null) this.comboText = renderer.createText(screenWidth / 2, screenHeight * 0.45, this.combo, { fontSize: 30, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
+        this.comboText.text = this.combo
         this.destroyArrow(arrow)
     }
 }
