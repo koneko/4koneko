@@ -32,7 +32,7 @@ class Map {
                         notes.forEach(note => {
                             let lane = parseInt(note["Lane"]) - 1
                             let seconds = parseInt(note["StartTime"]) - parseInt(globalInitialStartTime)
-                            this.createNote(lane, seconds, 8)
+                            this.createNote(lane, seconds, 9)
                         })
                         // center text around screenwidth / 2
                         globalText = renderer.createText(screenWidth / 2, screenHeight * 0.05, `Song: ${globalName}\nDifficulty: ${globalDifficulty}`, { fontSize: 24, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })

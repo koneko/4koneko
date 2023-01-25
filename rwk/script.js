@@ -3,12 +3,12 @@ const screenWidth = window.innerWidth
 const screenHeight = window.innerHeight
 
 let globalInitialStartTime = 0
+let globalOffset = 500
 let globalName = null
 let globalDifficulty = null
 let globalText = null
 
 document.querySelector("div.canvas").appendChild(app.view);
-// make the canvas fill the screen
 
 class Game {
     constructor () {
@@ -21,6 +21,7 @@ class Game {
         this.points = 0
         this.globalSpeed = 1
         this.startTime = null
+        this.text = null
         this.ms = 0
         this.left = { key: "d", pressed: false }
         this.up = { key: "f", pressed: false }
@@ -40,6 +41,10 @@ class Game {
             okay: 0,
             miss: 0
         }
+        this.developer = {
+            devTextObj: null,
+            judgementsObj: null
+        }
         this.keylog = []
         this.notes = []
         this.arrows = []
@@ -48,13 +53,10 @@ class Game {
         app.renderer.view.style.display = "block";
         app.renderer.autoResize = true;
         app.renderer.resize(screenWidth, screenHeight);
-
-        //mouse move
         app.renderer.view.addEventListener("mousemove", (e) => {
             this.mouseX = e.offsetX;
             this.mouseY = e.offsetY;
         });
-        // on key press 
         this.keyPressHandler()
     }
     createTicker () {
@@ -62,13 +64,26 @@ class Game {
         app.ticker.add(() => {
             this.delta++
             this.ms = Date.now() - this.startTime
+            // if (this.arrows != null) {
+            //     this.arrows.forEach(arrow => {
+            //         // update arrow ms
+            //         arrow.ms = this.ms
+            //     })
+            // }
             if (checkIsDone(this.notes) == true && this.arrows.length == 0) {
                 // end game
                 console.warn("end game")
                 this.endGame()
             }
             this.update();
+            this.developerUpdate()
         })
+    }
+    developerUpdate () {
+        if (this.developer.devTextObj != null) this.developer.devTextObj.text = `MS: ${this.ms}\nOffset: ${globalOffset}\nInitial Offset: ${globalInitialStartTime}\nPoints: ${this.points}\nDifficulty: ${globalDifficulty}\nArrows: ${this.arrows.length}`
+        else this.developer.devTextObj = renderer.createText(0, 0, ``, { fontSize: 24, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
+        if (this.developer.judgementsObj != null) this.developer.judgementsObj.text = `Marvelous: ${this.judgements.marvelous}\nPerfect: ${this.judgements.perfect}\nGreat: ${this.judgements.great}\nGood: ${this.judgements.good}\nOkay: ${this.judgements.okay}\nMiss: ${this.judgements.miss}`
+        else this.developer.judgementsObj = renderer.createText(0, screenHeight / 2, `Marvelous: ${this.judgements.marvelous}\nPerfect: ${this.judgements.perfect}\nGreat: ${this.judgements.great}\nGood: ${this.judgements.good}\nOkay: ${this.judgements.okay}\nMiss: ${this.judgements.miss}`, { fontSize: 24, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
     }
     modal (html) {
         const modal = document.createElement("div");
@@ -82,9 +97,7 @@ class Game {
         modal.style.alignItems = "center";
         modal.style.justifyContent = "center";
         modal.style.zIndex = "999";
-        // display modal
         document.body.appendChild(modal);
-        // create iframe
         let div = document.createElement("div");
         div.style.width = "300px";
         div.style.height = "300px";
@@ -136,25 +149,20 @@ class Game {
                 note.consumed = true
                 let arrow = new Arrow(game, note.lane, note.speed, note.id, this.ms)
                 this.arrows.push(arrow)
-                console.warn("arrow created", arrow.lane, arrow.index)
+                // console.warn("arrow created", arrow.lane, arrow.index)
             }
         })
         if (this.arrows == null) return
-        console.log(`arrows: ${this.arrows.length}`)
+        // console.log(`arrows: ${this.arrows.length}`)
         this.arrows.forEach(arrow => {
             arrow.update()
         })
     }
     endGame () {
-        document.querySelector("div.canvas").removeChild(app.view)
-        document.querySelector("div.canvas").innerHTML = `
-        <div>
-            <h1>Game finished!</h1>
-            <h2>Points: ${this.points}</h2>
-            <h2>Accuracy: ${this.getAccuracy()}%</h2>
-        </div>
-        `
-        // stop ticker
+        this.removeLanes()
+        // put text
+        let accuracy = this.getAccuracy()
+        let text = renderer.createText(screenWidth / 2, screenHeight / 2, `Game finished!\nAccuracy: ${accuracy}%`, { fontSize: 24, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
         app.ticker.stop()
     }
     getAccuracy () {
@@ -198,15 +206,11 @@ class Game {
                 number += Number(item.right)
             }
         })
-        if (number > 50) this.lanes[num].valid = false
+        // if (number > 50) this.lanes[num].valid = false
         //hit calculation
         if (this.arrows == null) return
         this.arrows.forEach(arrow => {
-            let arrowMS = arrow.ms + globalInitialStartTime
-            let ms = this.ms
-            // different is how far you were of from perfection
-            let different = arrowMS - ms
-            if (different < 0) different = different * -1
+            let different = Math.abs(arrow.calcY())
             if (different < 165 && num == arrow.lane && this.lanes[num].valid == true) {
                 console.warn("hit", arrow.lane, arrow.index)
                 this.gradeArrow(arrow, different)
@@ -255,36 +259,55 @@ class Game {
         this.points -= 20
     }
     destroyArrow (arrow) {
-        console.warn("arrow destroyed", arrow.lane, arrow.index)
+        // console.warn("arrow destroyed", arrow.lane, arrow.index)
         app.stage.removeChild(arrow.object)
         this.arrows.splice(this.arrows.indexOf(arrow), 1)
     }
+    createJudgementText (input, color) {
+        if (this.text != null) {
+            this.text.text = input
+            this.text.style.fill = color
+            this.text.x = (app.renderer.width - this.text.width) / 2
+            if (input == "Marvelous") this.text.style.fontFamily = "Tron"
+        }
+        else {
+            this.text = renderer.createText(screenWidth / 2, screenHeight * 0.4, input, { fontSize: 30, fill: color, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
+            this.text.x = (app.renderer.width - this.text.width) / 2
+        }
+    }
     gradeArrow (arrow, different) {
         // judgement timings are pulled from https://wiki.quavergame.com/docs/gameplay#judgement-timing-windows with 2ms added to each
+        // nevermind the comment above, i just made it up
         if (different < 20) {
             // marvelous judgement
             this.judgements.marvelous++
             this.addPoints(100)
+            this.createJudgementText("Marvelous", 0xFFFFFF)
         } else if (different < 45) {
             // perfect judgement
             this.judgements.perfect++
             this.addPoints(80)
+            this.createJudgementText("Perfect", 0xFFFF19)
         } else if (different < 78) {
             // great judgement
             this.judgements.great++
             this.addPoints(50)
+            this.createJudgementText("Great", 0x4DFF4D)
         } else if (different < 108) {
             // good judgement
             this.judgements.good++
             this.addPoints(30)
+            this.createJudgementText("Marvelous", 0x80AAFF)
         } else if (different < 129) {
             // okay judgement
             this.judgements.okay++
             this.addPoints(10)
+            this.createJudgementText("Okay", 0x00FFFFF)
         } else {
             // miss judgement
             this.judgements.miss++
             this.removePoints()
+            this.createJudgementText("Miss", 0xFF3333)
         }
         this.destroyArrow(arrow)
     }

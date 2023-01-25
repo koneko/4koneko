@@ -22,9 +22,13 @@ class Arrow {
         arrow.zindex = this.index
         this.object = arrow
     }
+    calcY () {
+        return calculateY() - this.y
+    }
     check () {
-        if (this.y > calculateY() + 100) {
+        if (this.y > calculateY() + 200) {
             game.destroyArrow(this)
+            game.judgements.miss++
             game.removePoints()
         }
     }
