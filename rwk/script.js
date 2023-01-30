@@ -3,7 +3,8 @@ const screenWidth = window.innerWidth
 const screenHeight = window.innerHeight
 
 let globalInitialStartTime = 0
-let globalOffset = 500
+let globalOffset = parseInt(localStorage.globalOffset) || 0
+let globalVolume = parseInt(localStorage.globalVolume) || 0.5
 let globalName = null
 let globalDifficulty = null
 let globalText = null
@@ -19,7 +20,7 @@ class Game {
         this.delta = 0
         this.seconds = 0.0
         this.points = 0
-        this.globalSpeed = 1
+        this.globalSpeed = parseInt(localStorage.globalSpeed) || 1
         this.startTime = null
         this.text = null
         this.ms = 0
@@ -28,10 +29,10 @@ class Game {
         this.down = { key: "j", pressed: false }
         this.right = { key: "k", pressed: false }
         this.lanes = [
-            { x: getXFromLaneNum(0), y: calculateY(), width: 128, height: 200, color: 0xFFFFFF, lane: null, key: this.left, valid: true },
-            { x: getXFromLaneNum(1), y: calculateY(), width: 128, height: 200, color: 0xFFFFFF, lane: null, key: this.up, valid: true },
-            { x: getXFromLaneNum(2), y: calculateY(), width: 128, height: 200, color: 0xFFFFFF, lane: null, key: this.down, valid: true },
-            { x: getXFromLaneNum(3), y: calculateY(), width: 128, height: 200, color: 0xFFFFFF, lane: null, key: this.right, valid: true },
+            { x: getXFromLaneNum(0), y: calculateY(), width: 128, height: 200, color: 0xFFFFFF, lane: null, key: this.left, valid: true, checkStartMS: 0, currentMS: 0, holding: false },
+            { x: getXFromLaneNum(1), y: calculateY(), width: 128, height: 200, color: 0xFFFFFF, lane: null, key: this.up, valid: true, checkStartMS: 0, currentMS: 0, holding: false },
+            { x: getXFromLaneNum(2), y: calculateY(), width: 128, height: 200, color: 0xFFFFFF, lane: null, key: this.down, valid: true, checkStartMS: 0, currentMS: 0, holding: false },
+            { x: getXFromLaneNum(3), y: calculateY(), width: 128, height: 200, color: 0xFFFFFF, lane: null, key: this.right, valid: true, checkStartMS: 0, currentMS: 0, holding: false },
         ]
         this.judgements = {
             marvelous: 0,
@@ -43,7 +44,8 @@ class Game {
         }
         this.developer = {
             devTextObj: null,
-            judgementsObj: null
+            judgementsObj: null,
+            laneValidityObjects: []
         }
         this.comboText = null
         this.combo = 0
@@ -60,6 +62,15 @@ class Game {
             this.mouseY = e.offsetY;
         });
         this.keyPressHandler()
+        this.loadKeyPreferences()
+    }
+    loadKeyPreferences () {
+        if (localStorage.keys == null) return
+        let keys = JSON.parse(localStorage.globalKeys)
+        this.left.key = keys.left
+        this.up.key = keys.up
+        this.down.key = keys.down
+        this.right.key = keys.right
     }
     createTicker () {
         this.startTime = Date.now();
@@ -82,10 +93,10 @@ class Game {
         })
     }
     developerUpdate () {
-        if (this.developer.devTextObj != null) this.developer.devTextObj.text = `MS: ${this.ms}\nOffset: ${globalOffset}\nInitial Offset: ${globalInitialStartTime}\nPoints: ${this.points}\nDifficulty: ${globalDifficulty}\nArrows: ${this.arrows.length}`
+        if (this.developer.devTextObj != null) this.developer.devTextObj.text = `MS: ${this.ms}\nOffset: ${globalOffset}\nInitial Offset: ${globalInitialStartTime}\nPoints: ${this.points}\nDifficulty: ${globalDifficulty}\nArrows: ${this.arrows.length}\n`
         else this.developer.devTextObj = renderer.createText(0, 0, ``, { fontSize: 24, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
         if (this.developer.judgementsObj != null) this.developer.judgementsObj.text = `Marvelous: ${this.judgements.marvelous}\nPerfect: ${this.judgements.perfect}\nGreat: ${this.judgements.great}\nGood: ${this.judgements.good}\nOkay: ${this.judgements.okay}\nMiss: ${this.judgements.miss}`
-        else this.developer.judgementsObj = renderer.createText(0, screenHeight / 2, `Marvelous: ${this.judgements.marvelous}\nPerfect: ${this.judgements.perfect}\nGreat: ${this.judgements.great}\nGood: ${this.judgements.good}\nOkay: ${this.judgements.okay}\nMiss: ${this.judgements.miss}`, { fontSize: 24, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
+        else this.developer.judgementsObj = renderer.createText(0, screenHeight / 1.5, `Marvelous: ${this.judgements.marvelous}\nPerfect: ${this.judgements.perfect}\nGreat: ${this.judgements.great}\nGood: ${this.judgements.good}\nOkay: ${this.judgements.okay}\nMiss: ${this.judgements.miss}`, { fontSize: 24, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
     }
     modal (html) {
         const modal = document.createElement("div");
@@ -129,20 +140,7 @@ class Game {
         this.music.play()
     }
     update () {
-        this.updateKeylog()
         this.updateArrows()
-    }
-    updateKeylog () {
-        let obj = {
-            left: this.left.pressed,
-            up: this.up.pressed,
-            down: this.down.pressed,
-            right: this.right.pressed,
-            delta: this.delta,
-            seconds: this.ms
-        }
-        if (this.keylog.length > 999) this.keylog.shift()
-        this.keylog.push(obj)
     }
     updateArrows () {
         if (this.notes == null) return
@@ -165,6 +163,10 @@ class Game {
         // put text
         let accuracy = this.getAccuracy()
         let text = renderer.createText(screenWidth / 2, screenHeight / 2, `Game finished!\nAccuracy: ${accuracy}%`, { fontSize: 24, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
+        // clear combo text
+        this.comboText.text = ""
+        // clear judgement text
+        this.text.text = ""
         app.ticker.stop()
     }
     getAccuracy () {
@@ -191,23 +193,7 @@ class Game {
         this.lanes[num].key.pressed = true
         this.removeLanes()
         this.createLanes()
-        let lastLog = getLastLog(this.keylog)
-        let number = 0
-        lastLog.forEach(item => {
-            if (item == null) return
-            if (key == "left") {
-                number += Number(item.left)
-            }
-            else if (key == "up") {
-                number += Number(item.up)
-            }
-            else if (key == "down") {
-                number += Number(item.down)
-            }
-            else if (key == "right") {
-                number += Number(item.right)
-            }
-        })
+        if (this.validateLaneMS(num) == false) return
         // if (number > 50) this.lanes[num].valid = false
         //hit calculation
         if (this.arrows == null) return
@@ -249,6 +235,20 @@ class Game {
             if (e.key.toLowerCase() == this.down.key) this.release("down")
             if (e.key.toLowerCase() == this.right.key) this.release("right")
         })
+    }
+    validateLaneMS (laneNumber) {
+        let lane = this.lanes[laneNumber]
+        let ms = this.ms
+        if (lane.checkStartMS == 0) lane.checkStartMS = ms
+        let startLaneMS = lane.checkStartMS
+        let different = ms - startLaneMS
+        if (different > 500 && this.lanes[laneNumber].holding == false) {
+            lane.valid = false
+            return false
+        } else {
+            lane.checkStartMS = 0
+            return true
+        }
     }
     loadMap (data) {
         this.music = data.music

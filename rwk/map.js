@@ -27,7 +27,7 @@ class Map {
                         let notes = parsed["HitObjects"]
                         globalName = parsed["Title"]
                         globalDifficulty = parsed["DifficultyName"]
-                        globalInitialStartTime = parsed["TimingPoints"][0]["StartTime"]
+                        globalInitialStartTime = parsed["TimingPoints"][0]["StartTime"] || 0
                         console.log("initial start time", globalInitialStartTime)
                         notes.forEach(note => {
                             let lane = parseInt(note["Lane"]) - 1

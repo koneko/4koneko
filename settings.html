@@ -4,12 +4,49 @@
 		<meta charset="UTF-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Document</title>
+		<title>Settings</title>
+		<link
+			rel="icon"
+			href="https://hub.koneko.link/cdn/icons/black.png"
+			type="image/gif"
+			sizes="16x16"
+		/>
 	</head>
 	<body>
 		<main>
-			<p>wip</p>
-			<a href="index.html">back</a>
+			<div class="settings">
+				<div>
+					<span>Global Song Volume (float)</span><br />
+					<input type="text" id="globalVolume" />
+				</div>
+				<div>
+					<span>Global Note Speed (int)</span><br />
+					<input type="text" id="globalSpeed" />
+				</div>
+				<div>
+					<span>Global Note Offset (int)</span><br />
+					<input type="text" id="globalOffset" />
+				</div>
+				<div class="keys">
+					<span
+						>keys
+						<span
+							title="please only input 1 character and make sure its lower case (html handles input in that sort of way)"
+							style="font-size: 10px"
+							>hover</span
+						></span
+					>
+					<div class="subkeys">
+						<input type="text" id="left" />
+						<input type="text" id="up" />
+						<input type="text" id="down" />
+						<input type="text" id="right" />
+					</div>
+				</div>
+				<button onclick="save()">Save</button>
+				<button onclick="reset()">Reset to defaults</button>
+			</div>
+			<a href="index.html" style="color: dodgerblue">back</a>
 		</main>
 	</body>
 	<style>
@@ -30,5 +67,110 @@
 			justify-content: center;
 			flex-direction: column;
 		}
+		.settings {
+			background-color: white;
+			color: black;
+			border-radius: 10px;
+			padding: 10px;
+			height: 70%;
+			width: 30%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-direction: column;
+			gap: 15px;
+		}
+		.keys {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-direction: column;
+			gap: 15px;
+		}
+		.subkeys > input {
+			width: 1ch;
+		}
 	</style>
+	<script>
+		function loadSettings() {
+			let settings = [
+				"globalSpeed",
+				"globalVolume",
+				"globalOffset",
+				"globalKeys",
+			];
+			settings.forEach((setting) => {
+				let value = get(setting);
+				if (setting == "globalKeys") {
+					let keys = value;
+					if (!keys) keys = populateDefault(setting);
+					document.getElementById("left").value = keys.left;
+					document.getElementById("up").value = keys.up;
+					document.getElementById("down").value = keys.down;
+					document.getElementById("right").value = keys.right;
+				} else if (value) {
+					document.getElementById(setting).value = value;
+				} else {
+					document.getElementById(setting).value = populateDefault(setting);
+				}
+			});
+		}
+		function populateDefault(setting) {
+			if (setting == "globalSpeed") return 1;
+			if (setting == "globalVolume") return 0.5;
+			if (setting == "globalOffset") return 0;
+			if (setting == "globalKeys")
+				return {
+					left: "d",
+					up: "f",
+					down: "j",
+					right: "k",
+				};
+		}
+		function get(name) {
+			if (name == "globalKeys")
+				return JSON.parse(localStorage.getItem("globalKeys"));
+			else return localStorage.getItem(name);
+		}
+		function set(name, value) {
+			localStorage.setItem(name, value);
+		}
+		function save() {
+			let settings = [
+				"globalSpeed",
+				"globalVolume",
+				"globalOffset",
+				"globalKeys",
+			];
+			settings.forEach((setting) => {
+				if (setting == "globalKeys") {
+					let keys = {
+						left: document.getElementById("left").value,
+						up: document.getElementById("up").value,
+						down: document.getElementById("down").value,
+						right: document.getElementById("right").value,
+					};
+					set(setting, JSON.stringify(keys));
+				} else {
+					set(setting, document.getElementById(setting).value);
+				}
+			});
+			loadSettings();
+		}
+		function reset() {
+			let settings = [
+				"globalSpeed",
+				"globalVolume",
+				"globalOffset",
+				"globalKeys",
+			];
+			settings.forEach((setting) => {
+				if (setting == "globalKeys")
+					set(setting, JSON.stringify(populateDefault(setting)));
+				else set(setting, populateDefault(setting));
+			});
+			loadSettings();
+		}
+		loadSettings();
+	</script>
 </html>
