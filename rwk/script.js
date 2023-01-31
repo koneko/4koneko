@@ -270,7 +270,7 @@ class Game {
             this.text.text = input
             this.text.style.fill = color
             this.text.x = (app.renderer.width - this.text.width) / 2
-            if (input == "Marvelous") this.text.style.fontFamily = "Tron"
+            if (input == "Marvelous") this.text.style.fontFamily = "Impact"
         }
         else {
             this.text = renderer.createText(screenWidth / 2, screenHeight * 0.4, input, { fontSize: 30, fill: color, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
@@ -278,8 +278,6 @@ class Game {
         }
     }
     gradeArrow (arrow, different) {
-        // judgement timings are pulled from https://wiki.quavergame.com/docs/gameplay#judgement-timing-windows with 2ms added to each
-        // nevermind the comment above, i just made it up
         if (different < 20) {
             // marvelous judgement
             this.judgements.marvelous++

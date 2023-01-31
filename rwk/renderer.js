@@ -1,7 +1,4 @@
 class Renderer {
-    constructor () {
-        this.objects = []
-    }
     createRectangle (x, y, width, height, color) {
         let rectangle = new PIXI.Graphics();
         rectangle.beginFill(color);
@@ -29,6 +26,5 @@ class Renderer {
     }
     deleteObject (object) {
         app.stage.removeChild(object)
-        this.objects.splice(this.objects.indexOf(object), 1)
     }
 }
