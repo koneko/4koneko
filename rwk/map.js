@@ -42,6 +42,7 @@ class Map {
                 if (file.name.endsWith(".mp3")) {
                     file.async("base64").then((content) => {
                         this.music = new Audio("data:audio/mp3;base64," + content)
+                        this.music.volume = globalVolume
                     });
                 }
             });

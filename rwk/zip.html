@@ -1,11 +1,11 @@
 <style>
 	#div {
 		display: flex;
-		flex-direction: column;
 		align-items: center;
 		justify-content: center;
 		gap: 10px;
 		text-align: left;
+		flex-direction: row;
 		width: 100%;
 		height: 100%;
 		background-color: white;
@@ -16,8 +16,42 @@
 	a {
 		color: dodgerblue;
 	}
+
+	.metadata {
+		/* semi opaque black background */
+		background-color: rgba(0, 0, 0, 0.5);
+		/* padding */
+		padding: 10px;
+		/* rounded corners */
+		border-radius: 10px;
+		/* same height as .maps */
+		height: 50%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 10px;
+	}
+	.maps {
+		/* semi opaque black background */
+		background-color: rgba(0, 0, 0, 0.5);
+		/* padding */
+		padding: 10px;
+		/* rounded corners */
+		border-radius: 10px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 10px;
+		font-size: 20px;
+		height: 50%;
+	}
 </style>
-<div id="div"></div>
+<div id="div">
+	<div class="metadata"></div>
+	<div class="maps"></div>
+</div>
 <script src="/zip/jszip.min.js"></script>
 <script src="/zip/yaml.js"></script>
 <script>
@@ -27,20 +61,49 @@
 	let inputfile = params.get("file");
 	// if file is not null
 	if (inputfile != null) {
+		fetch("https://api.quavergame.com/v1/mapsets/" + inputfile)
+			.then((res) => res.json())
+			.then((data) => {
+				console.log(data);
+				data = data.mapset;
+				let div = document.querySelector(".metadata");
+				let title = document.createElement("h1");
+				title.innerText = data.title;
+				div.appendChild(title);
+				let artist = document.createElement("h2");
+				artist.innerText =
+					"by: " + data.artist + " (" + data.creator_username + ")";
+				div.appendChild(artist);
+
+				let maps = data.maps;
+				let mapsDiv = document.querySelector(".maps");
+				// sort maps by difficulty rating
+				maps.sort((a, b) => {
+					return a.difficulty_rating - b.difficulty_rating;
+				});
+				maps.forEach((map) => {
+					console.log(map);
+					let mapDiv = document.createElement("div");
+					mapDiv.innerHTML = `
+					<p style="font-weight: bold;">${
+						map.difficulty_name
+					} (<span style="color: ${colorFromDifficulty(
+						map.difficulty_rating
+					)}">${
+						map.difficulty_rating
+					}</span>) <a href="#" style="text-decoration: none;" onclick="playinner('${
+						map.mapset_id
+					}', '${map.id}')">Play</a></p>
+					`;
+					mapsDiv.appendChild(mapDiv);
+				});
+			});
 		fetch("https://maps.4koneko.world/" + inputfile + ".qp")
 			.then((res) => res.blob())
 			.then(async (file) => {
 				let loaded = await JSZip.loadAsync(file);
 				let zip = new JSZip();
 				loaded.forEach((path, file) => {
-					if (file.name.endsWith(".qua")) {
-						// get file content
-						file.async("string").then((content) => {
-							// do something with content
-							let map = YAML.parse(content);
-							maps.push(map);
-						});
-					}
 					if (file.name.endsWith(".png") || file.name.endsWith(".jpg")) {
 						// get file content
 						file.async("base64").then((content) => {
@@ -50,25 +113,6 @@
 								"url(data:image/png;base64," + content + ")";
 						});
 					}
-				});
-				// wait for maps to be populated
-				while (maps.length == 0) {
-					await new Promise((r) => setTimeout(r, 100));
-				}
-				// populate div
-				let div = document.getElementById("div");
-				// add title
-				let title = document.createElement("h1");
-				title.innerText = maps[0].Title;
-				div.appendChild(title);
-				// add maps
-				maps.forEach((map) => {
-					console.log(map);
-					let mapDiv = document.createElement("div");
-					mapDiv.innerHTML = `
-					<p style="font-weight: bold;">${map.DifficultyName} <a href="#" onclick="playinner('${inputfile}', '${map.MapId}')">play</a></p>
-					`;
-					div.appendChild(mapDiv);
 				});
 			});
 	}
@@ -80,63 +124,9 @@
 		script.innerHTML = `playMap("${file}", "${mapid}")`;
 		parent.document.body.appendChild(script);
 	}
-
-	// not used!
-	async function thing() {
-		// get file
-		var file = document.getElementById("file").files[0];
-
-		let loaded = await JSZip.loadAsync(file);
-		let zip = new JSZip();
-		loaded.forEach((path, file) => {
-			if (file.name.endsWith(".qua")) {
-				// get file content
-				file.async("string").then((content) => {
-					// do something with content
-					let map = YAML.parse(content);
-					maps.push(map);
-				});
-			}
-			if (file.name.endsWith(".mp3")) {
-				// get file content
-				file.async("base64").then((content) => {
-					// do something with content
-					music = content;
-				});
-			}
-		});
-		// while music ==null
-		while (music == null) {
-			await new Promise((r) => setTimeout(r, 100));
-		}
-		// load music
-		let audio = new Audio("data:audio/mp3;base64," + music);
-		// set audio to half
-		audio.volume = 0.5;
-		audio.play();
-	}
-	function search() {
-		let query = document.getElementById("query").value;
-		let output = document.querySelector(".output");
-		output.innerHTML = "";
-		fetch(
-			"https://api.quavergame.com/v1/mapsets/maps/search?search=" +
-				query +
-				"&mode=1"
-		)
-			.then((res) => res.json())
-			.then((data) => {
-				let i = 0;
-				data.mapsets.forEach((map) => {
-					let div = document.createElement("div");
-					div.innerHTML = `
-                        <h2>${map.title}</h2>
-                        <span>${map.artist} | ${map.creator_username}</span>
-                        <span>${map.difficulty_range[0]}</span>
-                        <button onclick="open('${map.id}', "${i}")">open</button>
-                    `;
-					output.appendChild(div);
-				});
-			});
+	function colorFromDifficulty(difficulty) {
+		// generate color from difficulty rating as a float
+		let hue = (difficulty / 10) * 120;
+		return `hsl(${hue}, 100%, 50%)`;
 	}
 </script>

@@ -270,7 +270,8 @@ class Game {
             this.text.text = input
             this.text.style.fill = color
             this.text.x = (app.renderer.width - this.text.width) / 2
-            if (input == "Marvelous") this.text.style.fontFamily = "Impact"
+            if (input == "Marvelous") this.text.style.fontFamily = "Roboto Slab"
+            else this.text.style.fontFamily = "Roboto"
         }
         else {
             this.text = renderer.createText(screenWidth / 2, screenHeight * 0.4, input, { fontSize: 30, fill: color, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })

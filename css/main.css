@@ -1,0 +1,171 @@
+html,
+body {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+}
+main {
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    color: white;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 15px;
+}
+#out {
+    width: 80%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: scroll;
+    /* style scroll bar */
+    scrollbar-color: #000000 #000000;
+    scrollbar-width: thin;
+}
+#out > div {
+    width: 60%;
+    height: 25%;
+    background-color: rgb(255, 255, 255);
+    color: black;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    border-radius: 25px;
+}
+nav {
+    width: 80%;
+    height: 10%;
+    background-color: white;
+    color: dodgerblue !important;
+    border-radius: 10px;
+    text-align: center;
+    align-items: center;
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    flex-direction: column;
+}
+nav > div > a {
+    color: dodgerblue;
+    text-decoration: none;
+    font-size: 20px;
+    padding: 10px;
+}
+.logo {
+    width: 25%;
+    height: 50%;
+    /* display: flex;
+    align-items: center;
+    justify-content: center; */
+    border-radius: 10px;
+    /* gradient bg from black to light blue */
+    /* background: linear-gradient(
+        90deg,
+        rgb(71, 186, 253) 0%,
+        rgba(0, 0, 255, 1) 50%,
+        rgb(71, 186, 253) 100%
+    ); */
+    color: white;
+    /* animation */
+    background-size: 400% 400%;
+    /* animation: gradient 10s ease infinite; */
+    animation-direction: alternate;
+    animation-play-state: running;			
+    font-family: "Courier New", Courier, monospace;
+}
+.logo > div {
+    font-size: 35px;
+    font-weight: bold;
+}
+/* gradient animation that goes through text */
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+/* slowly bob text up and down animation */
+@keyframes bob {
+    0% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
+
+@keyframes bg {
+    0% {
+        color: #ffffff;
+    }
+    25% {
+        color: #369eff;
+    }
+    50% {
+        color: #00eeff;
+    }
+    75% {
+        color: #369eff;
+    }
+    100% {
+        color: #e4f5ff;
+    }
+}
+
+.title > div {
+    animation: bounce 4s infinite, bg 5s infinite;
+    /* add bg animation */
+    /* make it behave like a span */
+    display: inline-block;
+}
+/* for the 2nd child */
+.title > div:nth-child(2) {
+    animation-delay: 0.5s;
+}
+/* same for the others */
+.title > div:nth-child(3) {
+    animation-delay: 1s;
+}
+.title > div:nth-child(4) {
+    animation-delay: 1.5s;
+}
+.title > div:nth-child(5) {
+    animation-delay: 2s;
+}
+.title > div:nth-child(6) {
+    animation-delay: 2.5s;
+}
+.title > div:nth-child(7) {
+    animation-delay: 3s;
+}
+
+@keyframes bounce {
+    0% {
+        transform: translateY(0px);
+    }
+    25% {
+        transform: translateY(10px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+    75% {
+        transform: translateY(10px);
+    }
+    100% {
+        transform: translateY(0px);
+    }
+}
