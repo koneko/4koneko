@@ -18,7 +18,7 @@ class Arrow {
     draw (x, y) {
         let width = 120
         let color = this.color
-        let arrow = renderer.createCircle(x, y, width, color)
+        let arrow = renderer.createNote(x, y)
         arrow.zindex = this.index
         this.object = arrow
     }

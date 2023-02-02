@@ -95,8 +95,8 @@ class Game {
     developerUpdate () {
         if (this.developer.devTextObj != null) this.developer.devTextObj.text = `MS: ${this.ms}\nOffset: ${globalOffset}\nInitial Offset: ${globalInitialStartTime}\nPoints: ${this.points}\nDifficulty: ${globalDifficulty}\nArrows: ${this.arrows.length}\n`
         else this.developer.devTextObj = renderer.createText(0, 0, ``, { fontSize: 24, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
-        if (this.developer.judgementsObj != null) this.developer.judgementsObj.text = `Marvelous: ${this.judgements.marvelous}\nPerfect: ${this.judgements.perfect}\nGreat: ${this.judgements.great}\nGood: ${this.judgements.good}\nOkay: ${this.judgements.okay}\nMiss: ${this.judgements.miss}`
-        else this.developer.judgementsObj = renderer.createText(0, screenHeight / 1.5, `Marvelous: ${this.judgements.marvelous}\nPerfect: ${this.judgements.perfect}\nGreat: ${this.judgements.great}\nGood: ${this.judgements.good}\nOkay: ${this.judgements.okay}\nMiss: ${this.judgements.miss}`, { fontSize: 24, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
+        if (this.developer.judgementsObj != null) this.developer.judgementsObj.text = `${this.getAccuracy()}%\nMarvelous: ${this.judgements.marvelous}\nPerfect: ${this.judgements.perfect}\nGreat: ${this.judgements.great}\nGood: ${this.judgements.good}\nOkay: ${this.judgements.okay}\nMiss: ${this.judgements.miss}`
+        else this.developer.judgementsObj = renderer.createText(0, screenHeight / 3, `Marvelous: ${this.judgements.marvelous}\nPerfect: ${this.judgements.perfect}\nGreat: ${this.judgements.great}\nGood: ${this.judgements.good}\nOkay: ${this.judgements.okay}\nMiss: ${this.judgements.miss}`, { fontSize: 24, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
     }
     modal (html) {
         const modal = document.createElement("div");
@@ -170,13 +170,27 @@ class Game {
         app.ticker.stop()
     }
     getAccuracy () {
-        return ((this.correct / this.notes.length) * 100).toFixed(2).toString()
+        // calculate weighed accuracy
+        let total = this.judgements.marvelous + this.judgements.perfect + this.judgements.great + this.judgements.good + this.judgements.okay + this.judgements.miss
+        let accuracy = (this.judgements.marvelous * 100 + this.judgements.perfect * 98.25 + this.judgements.great * 65 + this.judgements.good * 25 + this.judgements.okay * -100 + this.judgements.miss * -50) / total
+        return accuracy.toFixed(2)
+    }
+    getLetterAndColor (accuracy) {
+        if (accuracy == 100) return { letter: "X", color: 0xFFFFFF }
+        else if (accuracy == 99) return { letter: "SS", color: 0xFFFFFF }
+        else if (accuracy > 95 && accuracy < 99) return { letter: "S", color: 0xFFFFFF }
+        else if (accuracy > 90 && accuracy < 95) return { letter: "A", color: 0x00FF00 }
+        else if (accuracy > 80 && accuracy < 90) return { letter: "B", color: 0x0000FF }
+        else if (accuracy > 70 && accuracy < 80) return { letter: "C", color: 0xFFFFFF }
+        else if (accuracy > 60 && accuracy < 70) return { letter: "D", color: 0xFFFFFF }
+        else return { letter: "F", color: 0xFF0000 }
     }
     createLanes () {
         for (let i = 0; i < this.lanes.length; i++) {
             let lane = this.lanes[i]
             // this.lanes[i].lane = renderer.createRectangle(lane.x, lane.y, lane.width, lane.height, lane.color)
-            this.lanes[i].lane = renderer.createCircle(lane.x, lane.y, lane.width, lane.color)
+            // this.lanes[i].lane = renderer.createCircle(lane.x, lane.y, lane.width, lane.color)
+            this.lanes[i].lane = renderer.createLane(lane.x, lane.y, lane.color)
             this.lanes[i].lane.zIndex = 99
         }
     }
@@ -262,7 +276,8 @@ class Game {
     }
     destroyArrow (arrow) {
         // console.warn("arrow destroyed", arrow.lane, arrow.index)
-        app.stage.removeChild(arrow.object)
+        // app.stage.removeChild(arrow.object)
+        renderer.deleteSprite(arrow.object)
         this.arrows.splice(this.arrows.indexOf(arrow), 1)
     }
     createJudgementText (input, color) {
