@@ -162,7 +162,11 @@ class Game {
         this.removeLanes()
         // put text
         let accuracy = this.getAccuracy()
-        let text = renderer.createText(screenWidth / 2, screenHeight / 2, `Game finished!\nAccuracy: ${accuracy}%`, { fontSize: 24, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
+        let { letter, color } = this.getLetterAndColor(accuracy)
+        let gradetext = renderer.createText(screenWidth / 2, screenHeight / 2 - 60, `${letter}`, { fontSize: 50, fill: color, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
+        let accuracytext = renderer.createText(screenWidth / 2, screenHeight / 2, `Accuracy: ${accuracy}%`, { fontSize: 30, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
+        gradetext.x = gradetext.x - gradetext.width / 2
+        accuracytext.x = accuracytext.x - accuracytext.width / 2
         // clear combo text
         this.comboText.text = ""
         // clear judgement text
@@ -181,8 +185,8 @@ class Game {
         else if (accuracy > 95 && accuracy < 99) return { letter: "S", color: 0xFFFFFF }
         else if (accuracy > 90 && accuracy < 95) return { letter: "A", color: 0x00FF00 }
         else if (accuracy > 80 && accuracy < 90) return { letter: "B", color: 0x0000FF }
-        else if (accuracy > 70 && accuracy < 80) return { letter: "C", color: 0xFFFFFF }
-        else if (accuracy > 60 && accuracy < 70) return { letter: "D", color: 0xFFFFFF }
+        else if (accuracy > 70 && accuracy < 80) return { letter: "C", color: 0x1FC0D1 }
+        else if (accuracy > 60 && accuracy < 70) return { letter: "D", color: 0xBA2224 }
         else return { letter: "F", color: 0xFF0000 }
     }
     createLanes () {
@@ -213,6 +217,7 @@ class Game {
         if (this.arrows == null) return
         this.arrows.forEach(arrow => {
             let different = Math.abs(arrow.calcY())
+            console.log(`Different: ${different} Lane: ${arrow.lane} Index: ${arrow.index}`)
             if (different < 165 && num == arrow.lane && this.lanes[num].valid == true) {
                 console.warn("hit", arrow.lane, arrow.index)
                 this.gradeArrow(arrow, different)
@@ -294,6 +299,7 @@ class Game {
         }
     }
     gradeArrow (arrow, different) {
+        console.log("grade arrow", different)
         if (different < 20) {
             // marvelous judgement
             this.judgements.marvelous++
