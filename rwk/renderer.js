@@ -1,9 +1,9 @@
 class Renderer {
     constructor () {
         this.noteTexture = PIXI.Texture.from("/assets/note.png")
-        this.longNoteStartTexture = PIXI.Texture.from("/assets/longNoteStart.png")
-        this.longNoteMiddleTexture = PIXI.Texture.from("/assets/longNoteMiddle.png")
-        this.longNoteEndTexture = PIXI.Texture.from("/assets/longNoteEnd.png")
+        this.longNoteStartTexture = PIXI.Texture.from("/assets/noteLongStart.png")
+        this.longNoteMiddleTexture = PIXI.Texture.from("/assets/noteLongMiddle.png")
+        this.longNoteEndTexture = PIXI.Texture.from("/assets/noteLongEnd.png")
         this.laneTexture = PIXI.Texture.from("/assets/lane.png")
         this.laneActiveTexture = PIXI.Texture.from("/assets/laneActive.png")
     }
@@ -33,6 +33,27 @@ class Renderer {
         return text
     }
 
+    createLongNoteStart (x, y) {
+        let note = new PIXI.Sprite(this.longNoteStartTexture)
+        note.x = x - 64
+        note.y = y
+        app.stage.addChild(note)
+        return note
+    }
+    createLongNoteMiddle (x, y) {
+        let note = new PIXI.Sprite(this.longNoteMiddleTexture)
+        note.x = x - 64
+        note.y = y
+        app.stage.addChild(note)
+        return note
+    }
+    createLongNoteEnd (x, y) {
+        let note = new PIXI.Sprite(this.longNoteEndTexture)
+        note.x = x - 64
+        note.y = y
+        app.stage.addChild(note)
+        return note
+    }
     createNote (x, y) {
         let note = new PIXI.Sprite(this.noteTexture)
         note.x = x - 64

@@ -19,19 +19,9 @@ function getXFromLaneNum (num) {
 }
 
 function calculateY () {
-    if (screenWidth > 1900) return screenHeight * 0.8
-    else return 500
+    return screenHeight * 0.8
 }
 
-function getLastLog (input, key) {
-    let log = []
-    let ammount = 0
-    for (i = 0; i < 60; i++) {
-        let item = input[i]
-        log.push(item)
-    }
-    return log
-}
 function checkIsDone (notes) {
     let done = true
     notes.forEach(note => {

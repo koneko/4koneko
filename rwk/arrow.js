@@ -26,7 +26,7 @@ class Arrow {
         return calculateY() - this.y
     }
     check () {
-        if (this.y > calculateY() + 200) {
+        if (this.y > calculateY() + 300) {
             game.destroyArrow(this)
             game.judgements.miss++
             game.combo = 0

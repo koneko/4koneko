@@ -9,6 +9,8 @@ let globalName = null
 let globalDifficulty = null
 let globalText = null
 
+let longNoteDevelopmentCounter = 0
+
 document.querySelector("div.canvas").appendChild(app.view);
 
 class Game {
@@ -53,6 +55,7 @@ class Game {
         this.notes = []
         this.arrows = []
         this.music = null
+        this.holdNotesStartingMS = []
         app.renderer.view.style.position = "absolute";
         app.renderer.view.style.display = "block";
         app.renderer.autoResize = true;
@@ -93,8 +96,8 @@ class Game {
         })
     }
     developerUpdate () {
-        if (localStorage.developerMode != true) return
-        if (this.developer.devTextObj != null) this.developer.devTextObj.text = `MS: ${this.ms}\nOffset: ${globalOffset}\nInitial Offset: ${globalInitialStartTime}\nPoints: ${this.points}\nDifficulty: ${globalDifficulty}\nArrows: ${this.arrows.length}\n`
+        if (localStorage.developerMode != "true") return
+        if (this.developer.devTextObj != null) this.developer.devTextObj.text = `MS: ${this.ms}\nOffset: ${globalOffset}\nInitial Offset: ${globalInitialStartTime}\nPoints: ${this.points}\nDifficulty: ${globalDifficulty}\nArrows: ${this.arrows.length}\nLNCounter: ${longNoteDevelopmentCounter}`
         else this.developer.devTextObj = renderer.createText(0, 0, ``, { fontSize: 24, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
         if (this.developer.judgementsObj != null) this.developer.judgementsObj.text = `${this.getAccuracy()}%\nMarvelous: ${this.judgements.marvelous}\nPerfect: ${this.judgements.perfect}\nGreat: ${this.judgements.great}\nGood: ${this.judgements.good}\nOkay: ${this.judgements.okay}\nMiss: ${this.judgements.miss}`
         else this.developer.judgementsObj = renderer.createText(0, screenHeight / 3, `Marvelous: ${this.judgements.marvelous}\nPerfect: ${this.judgements.perfect}\nGreat: ${this.judgements.great}\nGood: ${this.judgements.good}\nOkay: ${this.judgements.okay}\nMiss: ${this.judgements.miss}`, { fontSize: 24, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
@@ -148,8 +151,20 @@ class Game {
         this.notes.forEach(note => {
             if (note.seconds <= this.ms && note.consumed == false) {
                 note.consumed = true
-                let arrow = new Arrow(game, note.lane, note.speed, note.id, this.ms)
+                let arrow = null
+                if (note.endTime != null && localStorage.experimentalMode == "true") arrow = new LongNote(game, note.lane, note.speed, note.id, this.ms, note.endTime)
+                else arrow = new Arrow(game, note.lane, note.speed, note.id, this.ms)
                 this.arrows.push(arrow)
+                if (note.endTime != null) {
+                    console.error("LONG NOTE!")
+                    // log the long note properties
+                    console.log(`lane: ${note.lane}`)
+                    console.log(`speed: ${note.speed}`)
+                    console.log(`id: ${note.id}`)
+                    console.log(`ms: ${this.ms}`)
+                    console.log(`endTime: ${note.endTime}`)
+                    console.error("LONG NOTE! END")
+                }
                 // console.warn("arrow created", arrow.lane, arrow.index)
             }
         })
@@ -217,10 +232,11 @@ class Game {
         //hit calculation
         if (this.arrows == null) return
         this.arrows.forEach(arrow => {
+            if (arrow.endMS != null) return
             let different = Math.abs(arrow.calcY())
-            console.log(`Different: ${different} Lane: ${arrow.lane} Index: ${arrow.index}`)
+            // console.log(`Different: ${different} Lane: ${arrow.lane} Index: ${arrow.index}`)
             if (different < 165 && num == arrow.lane && this.lanes[num].valid == true) {
-                console.warn("hit", arrow.lane, arrow.index)
+                // console.warn("hit", arrow.lane, arrow.index)
                 this.gradeArrow(arrow, different)
                 this.lanes[num].valid = false
             }
