@@ -36,7 +36,7 @@ class LongNote {
             this.latestObject = this.startNote
             longNoteDevelopmentCounter++
         }
-        if (this.latestObject.y >= 100 && this.spawnNotes != false) {
+        if (this.latestObject.y >= 100 && this.spawnNotes != false && this.latestObject != null) {
             // middle note
             let middleNote = renderer.createLongNoteMiddle(this.x, this.y)
             middleNote.zindex = this.index
@@ -58,23 +58,23 @@ class LongNote {
         })
     }
     check () {
-        if (!this.startNoteDestroyed) {
+        if (!this.startNoteDestroyed && this.startNote != null) {
             if (this.startNote.y > calculateY() + 300) {
-                this.startNote.destroy()
                 this.startNoteDestroyed = true
+                this.startNote.destroy()
             }
         }
-        if (!this.endNoteDestroyed) {
+        if (!this.endNoteDestroyed && this.endNote != null) {
             if (this.endNote.y > calculateY() + 300) {
-                this.endNote.destroy()
                 this.endNoteDestroyed = true
+                this.endNote.destroy()
             }
         }
         this.middleNotes.forEach(note => {
-            if (note.y > calculateY() + 300) {
+            if (note.y > screenHeight + 64) {
+                this.middleNotes.splice(this.middleNotes.indexOf(note), 1)
                 note.destroy()
                 // remove from middle notes
-                this.middleNotes.splice(this.middleNotes.indexOf(note), 1)
             }
         })
     }

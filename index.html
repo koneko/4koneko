@@ -1,147 +1,107 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
-		<title>4koneko main menu</title>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link
+			rel="icon"
+			href="https://hub.koneko.link/cdn/icons/black.png"
+			type="image/gif"
+			sizes="16x16" />
+		<title>4koneko - Map Selector</title>
+		<link rel="stylesheet" href="/css/main.css" />
 	</head>
 	<body>
-		<!-- <div class="bg">
-			<div class="init">
-				<div class="title">
-					<div>4</div>
-					<div>k</div>
-					<div>o</div>
-					<div>n</div>
-					<div>e</div>
-					<div>k</div>
-					<div>o</div>
+		<main>
+			<nav>
+				<div>
+					<a href="about.html">about</a>
+					<a href="settings.html">settings</a>
+					<a href="/rwk/?custom=true">custom file</a>
 				</div>
-				<div style="margin-top: 10px; text-align: left">
-					<p onclick="addMaps()">Play</p>
-					<div style="margin-top: 2.5px"></div>
-					<p onclick="settings()">Game Settings</p>
-				</div>
-			</div>
-		</div> -->
+			</nav>
+			<div id="out"></div>
+		</main>
 	</body>
-	<style>
-		* {
-			margin: 0;
-			padding: 0;
-			overflow: hidden;
-		}
-		html,
-		body {
-			height: 100%;
-			width: 100%;
-			background-color: black;
-			color: white;
-		}
-		.title {
-			font-size: 75px;
-			font-family: "Courier New", Courier, monospace;
-			letter-spacing: 5px;
-			text-align: left;
-			margin-left: 10px;
-			letter-spacing: -5px;
-		}
-		p {
-			cursor: pointer;
-			font-size: 20px;
-		}
-		p:hover {
-			animation: bg 10s infinite;
-		}
-		/* ignore .bg */
-		@keyframes bg {
-			0% {
-				color: #ffffff;
-			}
-			25% {
-				color: #369eff;
-			}
-			50% {
-				color: #00eeff;
-			}
-			75% {
-				color: #369eff;
-			}
-			100% {
-				color: #e4f5ff;
-			}
-		}
-
-		.title > div {
-			animation: bounce 4s infinite, bg 5s infinite;
-			/* add bg animation */
-			/* make it behave like a span */
-			display: inline-block;
-		}
-		/* for the 2nd child */
-		.title > div:nth-child(2) {
-			animation-delay: 0.5s;
-		}
-		/* same for the others */
-		.title > div:nth-child(3) {
-			animation-delay: 1s;
-		}
-		.title > div:nth-child(4) {
-			animation-delay: 1.5s;
-		}
-		.title > div:nth-child(5) {
-			animation-delay: 2s;
-		}
-		.title > div:nth-child(6) {
-			animation-delay: 2.5s;
-		}
-		.title > div:nth-child(7) {
-			animation-delay: 3s;
-		}
-
-		@keyframes bounce {
-			0% {
-				transform: translateY(0px);
-			}
-			25% {
-				transform: translateY(10px);
-			}
-			50% {
-				transform: translateY(-10px);
-			}
-			75% {
-				transform: translateY(10px);
-			}
-			100% {
-				transform: translateY(0px);
-			}
-		}
-
-		.init {
-			color: white;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			/* from top */
-			margin-top: 45%;
-			gap: 10px;
-			text-align: left;
-			width: 100%;
-		}
-		body {
-			display: grid;
-			grid-template-columns: 2fr 2fr;
-		}
-	</style>
 	<script>
-		function addMaps() {
-			window.location.href = "map.html";
+		fetch("https://maps.4koneko.world/list.json")
+			.then((res) => res.json())
+			.then((data) => {
+				data.forEach((map) => {
+					const div = document.createElement("div");
+					div.innerHTML = `
+					<div id="${map.file.split(".")[0]}">
+					<p style="font-weight: bold;">${map.title}</p>
+					<p>by: ${map.artist}</p>
+					<a href="#" onclick="openMap('${
+						map.file.split(".")[0]
+					}')" style="color: dodgerblue; text-decoration: none;">open map</a>
+					</div>
+					`;
+					div.style.backgroundImage = `url(https://cdn.quavergame.com/mapsets/${
+						map.file.split(".")[0]
+					}.jpg)`;
+					div.style.backgroundSize = "cover";
+					div.style.backgroundPosition = "center";
+					div.style.backgroundRepeat = "no-repeat";
+					div.style.borderRadius = "5px";
+					div.style.padding = "10px";
+					div.style.width = "90%";
+					div.style.height = "200px";
+					div.style.display = "flex";
+					div.style.alignItems = "center";
+					div.style.justifyContent = "center";
+					div.style.flexDirection = "column";
+					div.style.color = "white";
+					div.style.textShadow =
+						"-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000";
+					document.getElementById("out").appendChild(div);
+				});
+				data.forEach((map) => {
+					let id = map.file.split(".")[0];
+					let element = document.getElementById(id);
+					// set background to be 0.5 opacity and black
+					element.style.backgroundColor = "rgba(0, 0, 0, 0.2)";
+					element.style.borderRadius = "5px";
+					element.style.padding = "10px";
+					element.style.width = "90%";
+				});
+			});
+		function openMap(file) {
+			// create modal
+			const modal = document.createElement("div");
+			1;
+			modal.style.position = "fixed";
+			modal.style.top = "0";
+			modal.style.left = "0";
+			modal.style.width = "100%";
+			modal.style.height = "100%";
+			modal.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+			modal.style.display = "flex";
+			modal.style.alignItems = "center";
+			modal.style.justifyContent = "center";
+			modal.style.zIndex = "999";
+			// display modal
+			document.body.appendChild(modal);
+			// create iframe
+			const iframe = document.createElement("iframe");
+			iframe.src = "/rwk/zip.html?file=" + file + "&e=" + Date.now();
+			// set iframe name
+			iframe.name = Date.now();
+			iframe.style.width = "80%";
+			iframe.style.height = "80%";
+			iframe.style.border = "none";
+			iframe.style.backgroundColor = "white";
+			// display iframe
+			modal.appendChild(iframe);
+			// when you click outside the iframe, close
+			modal.addEventListener("click", () => {
+				modal.remove();
+			});
 		}
-		function settings() {
-			window.location.href = "settings.html";
+		function playMap(file, mapid) {
+			window.location.href = "/rwk/?file=" + file + "&id=" + mapid;
 		}
-		function customMap() {
-			window.location.href = "selector.html";
-		}
-		window.location.href = "map.html";
 	</script>
 </html>

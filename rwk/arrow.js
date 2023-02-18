@@ -10,10 +10,11 @@ class Arrow {
         this.color = 0xFFFFFF
         this.draw(this.x, this.y)
         this.ms = ms
+        this.invalid = false
     }
     update () {
-        this.move()
         this.check()
+        this.move()
     }
     draw (x, y) {
         let width = 120
@@ -26,7 +27,7 @@ class Arrow {
         return calculateY() - this.y
     }
     check () {
-        if (this.y > calculateY() + 300) {
+        if (this.y > screenHeight + 64 && this.object != null) {
             game.destroyArrow(this)
             game.judgements.miss++
             game.combo = 0
@@ -34,9 +35,11 @@ class Arrow {
             game.comboText.text = game.combo
             game.comboUpd()
             game.removePoints()
+            this.invalid = true
         }
     }
     move () {
+        if (this.object == null || this.invalid == true) return
         this.y += Math.round(2.5 * this.speed * game.globalSpeed)
         this.object.y = this.y
     }

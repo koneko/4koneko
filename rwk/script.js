@@ -55,7 +55,7 @@ class Game {
         this.notes = []
         this.arrows = []
         this.music = null
-        this.holdNotesStartingMS = []
+        this.longNoteStartMS = []
         app.renderer.view.style.position = "absolute";
         app.renderer.view.style.display = "block";
         app.renderer.autoResize = true;
