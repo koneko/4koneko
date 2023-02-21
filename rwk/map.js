@@ -33,7 +33,7 @@ class Map {
                         notes.forEach(note => {
                             let lane = parseInt(note["Lane"]) - 1
                             let seconds = parseInt(note["StartTime"]) - parseInt(globalInitialStartTime)
-                            if (note["EndTime"] != null) this.createNote(lane, seconds, 9, parseInt(note["EndTime"]))
+                            if (note["EndTime"] != null) this.createNote(lane, seconds, 10, parseInt(note["EndTime"])) // proklet bio ti koji je ovo napravio!!
                             else this.createNote(lane, seconds, 10)
                         })
                         // center text around screenwidth / 2

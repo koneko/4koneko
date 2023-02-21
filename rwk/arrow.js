@@ -8,6 +8,7 @@ class Arrow {
         this.y = 0
         this.object = null
         this.color = 0xFFFFFF
+        this.text = null
         this.draw(this.x, this.y)
         this.ms = ms
         this.invalid = false
@@ -22,6 +23,7 @@ class Arrow {
         let arrow = renderer.createNote(x, y)
         arrow.zindex = this.index
         this.object = arrow
+        if (localStorage.developerMode == "true") this.text = renderer.createText(x, y, this.index, { fontSize: 30, fill: 0x000000, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
     }
     calcY () {
         return calculateY() - this.y
@@ -40,7 +42,9 @@ class Arrow {
     }
     move () {
         if (this.object == null || this.invalid == true) return
-        this.y += Math.round(2.5 * this.speed * game.globalSpeed)
-        this.object.y = this.y
+        //this.y += Math.round(2.5 * this.speed * game.globalSpeed)
+        this.y += 2.5 * this.speed * game.globalSpeed
+        this.object.y = Math.round(this.y)
+        if (this.text != null && localStorage.developerMode == "true") this.text.y = Math.round(this.y)
     }
 }

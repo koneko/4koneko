@@ -170,9 +170,10 @@ class Game {
         })
         if (this.arrows == null) return
         // console.log(`arrows: ${this.arrows.length}`)
-        this.arrows.forEach(arrow => {
+        for (let i = this.arrows.length - 1; i >= 0; i--) {
+            let arrow = this.arrows[i]
             arrow.update()
-        })
+        }
     }
     endGame () {
         this.removeLanes()

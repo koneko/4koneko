@@ -6,25 +6,29 @@ class Renderer {
         this.longNoteEndTexture = PIXI.Texture.from("/assets/noteLongEnd.png")
         this.laneTexture = PIXI.Texture.from("/assets/lane.png")
         this.laneActiveTexture = PIXI.Texture.from("/assets/laneActive.png")
+        // enable cacheAsBitmap for all sprites
+        PIXI.settings.SPRITE_MAX_TEXTURES = Math.min(PIXI.settings.SPRITE_MAX_TEXTURES, 16)
+        PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.NEAREST
+
     }
-    createRectangle (x, y, width, height, color) {
-        let rectangle = new PIXI.Graphics();
-        rectangle.beginFill(color);
-        rectangle.drawRect(x - width / 2, y - height / 2, width, height);
-        rectangle.endFill();
-        app.stage.addChild(rectangle);
-        return rectangle;
-    }
-    createCircle (x, y, radius, color) {
-        let circle = new PIXI.Graphics();
-        circle.beginFill(color);
-        circle.lineStyle(2, 0x000000, 1);
-        circle.drawCircle(x, y, radius / 2);
-        // black outline
-        circle.endFill();
-        app.stage.addChild(circle);
-        return circle;
-    }
+    // createRectangle (x, y, width, height, color) {
+    //     let rectangle = new PIXI.Graphics();
+    //     rectangle.beginFill(color);
+    //     rectangle.drawRect(x - width / 2, y - height / 2, width, height);
+    //     rectangle.endFill();
+    //     app.stage.addChild(rectangle);
+    //     return rectangle;
+    // }
+    // createCircle (x, y, radius, color) {
+    //     let circle = new PIXI.Graphics();
+    //     circle.beginFill(color);
+    //     circle.lineStyle(2, 0x000000, 1);
+    //     circle.drawCircle(x, y, radius / 2);
+    //     // black outline
+    //     circle.endFill();
+    //     app.stage.addChild(circle);
+    //     return circle;
+    // }
     createText (x, y, rawtext, style) {
         let text = new PIXI.Text(rawtext, style);
         text.x = x
