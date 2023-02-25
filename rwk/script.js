@@ -30,6 +30,8 @@ class Game {
         this.up = { key: "f", pressed: false }
         this.down = { key: "j", pressed: false }
         this.right = { key: "k", pressed: false }
+        this.paused = false
+        this.pauseTime = 0
         this.lanes = [
             { x: getXFromLaneNum(0), y: calculateY(), width: 128, height: 200, color: 0xFFFFFF, lane: null, key: this.left, valid: true, checkStartMS: 0, currentMS: 0, holding: false },
             { x: getXFromLaneNum(1), y: calculateY(), width: 128, height: 200, color: 0xFFFFFF, lane: null, key: this.up, valid: true, checkStartMS: 0, currentMS: 0, holding: false },
@@ -56,6 +58,7 @@ class Game {
         this.arrows = []
         this.music = null
         this.longNoteStartMS = []
+        this.modalObj = null
         app.renderer.view.style.position = "absolute";
         app.renderer.view.style.display = "block";
         app.renderer.autoResize = true;
@@ -125,6 +128,37 @@ class Game {
         div.style.justifyContent = "center";
         div.style.flexDirection = "column";
         div.innerHTML = html;
+        this.modalObj = [modal, div]
+        modal.appendChild(div);
+    }
+    largeModal (html) {
+        const modal = document.createElement("div");
+        modal.style.position = "fixed";
+        modal.style.top = "0";
+        modal.style.left = "0";
+        modal.style.width = "100%";
+        modal.style.height = "100%";
+        modal.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+        modal.style.display = "flex";
+        modal.style.alignItems = "center";
+        modal.style.justifyContent = "center";
+        modal.style.zIndex = "999";
+        document.body.appendChild(modal);
+        let div = document.createElement("div");
+        div.style.width = "80%";
+        div.style.height = "80%";
+        div.id = "largeModal"
+        div.style.color = "white";
+        div.style.textShadow = "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,1px 1px 0 #000;"
+        div.style.backgroundColor = "rgba(0, 0, 0, 0.5)";
+        div.style.backgroundColor = "white";
+        div.style.borderRadius = "10px";
+        div.style.display = "flex";
+        div.style.alignItems = "center";
+        div.style.justifyContent = "center";
+        div.style.flexDirection = "column";
+        div.innerHTML = html;
+        this.modalObj = [modal, div]
         modal.appendChild(div);
     }
     start () {
@@ -135,13 +169,24 @@ class Game {
         this.music.pause()
         // create modal with html
         this.modal(`
+        <p style="cursor: pointer;" onclick="game.resume()">Resume</p>
         <p style="cursor: pointer;" onclick="window.location.reload()">Restart</p>
         <p style="cursor: pointer;" onclick="window.location.href = '/map.html'">Quit</p>
         `)
+        this.pauseTime = Date.now()
     }
     resume () {
         app.ticker.start()
         this.music.play()
+        // remove modal
+        this.modalObj.forEach(obj => obj.remove())
+        // add time to start time
+        this.ms += Date.now() - this.pauseTime
+        // add time to every note
+        this.notes.forEach(note => {
+            if (note.consumed == true) return
+            note.seconds += Date.now() - this.pauseTime
+        })
     }
     update () {
         this.updateArrows()
@@ -365,23 +410,34 @@ class Game {
             this.comboText.x = (app.renderer.width - this.comboText.width) / 2
         }
     }
+    deleteModal () {
+        this.modalObj.forEach((obj) => obj.remove())
+    }
 }
 
 let params = new URLSearchParams(window.location.search)
-let file = params.get("file")
-let id = params.get("id")
-if (!file && !id) {
-    window.location.href = "/map.html"
-}
 let map = new Map()
 let renderer = new Renderer()
-map.loadId(file, id)
 let game = new Game()
-game.createLanes()
-// create text
-setTimeout(() => {
-    game.loadMap(map.exportMap())
-    game.start()
-    renderer.deleteObject(globalText)
-    game.music.play()
-}, 2000);
+if (params.get("custom") == "true") {
+    game.createLanes()
+    game.modal(`
+    <h3>Upload custom map</h3>
+    <input type="file" id="file" accept=".qp" style="color: transparent;margin-left: 55%;" onchange="map.loadMapFile(this.files[0])">
+    `)
+} else {
+    let file = params.get("file")
+    let id = params.get("id")
+    if (!file && !id) {
+        window.location.href = "/map.html"
+    }
+    map.loadId(file, id)
+    game.createLanes()
+    // create text
+    setTimeout(() => {
+        game.loadMap(map.exportMap())
+        game.start()
+        renderer.deleteObject(globalText)
+        game.music.play()
+    }, 2000);
+}

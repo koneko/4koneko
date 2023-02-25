@@ -3,6 +3,9 @@ class Map {
         this.notes = []
         this.latestID = 0
         this.music = null
+        this.loadedFile = null
+        this.metadataParsed = false
+        this.difficultys = []
     }
     createNote (lane, seconds, speed, endTime) {
         let id = this.latestID + 1
@@ -54,6 +57,51 @@ class Map {
         fetch("https://maps.4koneko.world/" + file + ".qp").then(res => res.blob()).then((data) => {
             this.loadExternalMap(data, id)
         })
+    }
+    async loadMapFile (file) {
+        game.deleteModal()
+        game.largeModal(`<div id="container"><div id="metadata"></div><div id="maps"></div></div>`)
+        let loaded = await JSZip.loadAsync(file);
+        let zip = new JSZip();
+        this.loadedFile = file
+        loaded.forEach((path, file) => {
+            if (file.name.endsWith(".png") || file.name.endsWith(".jpg")) {
+                // get file content
+                file.async("base64").then((content) => {
+                    // do something with content
+                    // set it as background image for #div
+                    document.getElementById("largeModal").style.backgroundImage =
+                        "url(data:image/png;base64," + content + ")";
+                });
+            }
+            if (file.name.endsWith(".qua")) {
+                file.async("string").then(content => {
+                    let parsed = YAML.parse(content)
+                    if (this.metadataParsed == false) {
+                        let artist = parsed["Artist"]
+                        let title = parsed["Title"]
+                        let creator = parsed["Creator"]
+                        let mapset = parsed["MapSetId"]
+                        document.getElementById("metadata").innerHTML = `<div class="mapMetadata"><h2>Title: ${title}</h2></div><div class="mapMetadata">Artist: ${artist}</div><div class="mapMetadata">Creator: ${creator}</div><div class="mapMetadata">MapSetId: ${mapset}</div>`
+                        this.metadataParsed = true
+                    }
+                    let id = parsed["MapId"]
+                    let difficulty = parsed["DifficultyName"]
+                    document.getElementById("maps").innerHTML += `<div class="map" style="color: dodgerblue;cursor:pointer;" onclick="map.loadFileId('${id}')"><div class="mapDifficulty">${difficulty}</div></div>`
+                })
+            }
+        });
+    }
+    loadFileId (id) {
+        // close modal
+        game.deleteModal()
+        this.loadExternalMap(this.loadedFile, id)
+        setTimeout(() => {
+            game.loadMap(map.exportMap())
+            game.start()
+            renderer.deleteObject(globalText)
+            game.music.play()
+        }, 2000);
     }
     exportMap () {
         return { notes: this.notes, music: this.music }

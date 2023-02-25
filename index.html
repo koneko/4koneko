@@ -15,6 +15,7 @@
 	<body>
 		<main>
 			<nav>
+				<span id="counter"></span>
 				<div>
 					<a href="about.html">about</a>
 					<a href="settings.html">settings</a>
@@ -28,6 +29,8 @@
 		fetch("https://maps.4koneko.world/list.json")
 			.then((res) => res.json())
 			.then((data) => {
+				if (localStorage.showCounter == "true")
+					document.getElementById("counter").innerHTML = data.length;
 				data.forEach((map) => {
 					const div = document.createElement("div");
 					div.innerHTML = `

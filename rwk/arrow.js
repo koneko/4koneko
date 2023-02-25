@@ -23,7 +23,7 @@ class Arrow {
         let arrow = renderer.createNote(x, y)
         arrow.zindex = this.index
         this.object = arrow
-        if (localStorage.developerMode == "true") this.text = renderer.createText(x, y, this.index, { fontSize: 30, fill: 0x000000, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
+        //if (localStorage.developerMode == "true") this.text = renderer.createText(x, y, this.index, { fontSize: 30, fill: 0x000000, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
     }
     calcY () {
         return calculateY() - this.y
@@ -38,6 +38,7 @@ class Arrow {
             game.comboUpd()
             game.removePoints()
             this.invalid = true
+            if (this.text != null) this.text.destroy()
         }
     }
     move () {
