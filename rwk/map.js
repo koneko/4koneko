@@ -28,6 +28,7 @@ class Map {
                     file.async("string").then(content => {
                         let parsed = YAML.parse(content)
                         if (parsed["MapId"] != id) return
+                        if (parsed["Mode"] != "Keys4") return window.location = "/?error=notKeys4"
                         let notes = parsed["HitObjects"]
                         globalName = parsed["Title"]
                         globalDifficulty = parsed["DifficultyName"]
