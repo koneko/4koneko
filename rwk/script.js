@@ -8,6 +8,8 @@ let globalVolume = parseInt(localStorage.globalVolume) || 0.5
 let globalName = null
 let globalDifficulty = null
 let globalText = null
+let file = null
+let id = null
 
 let longNoteDevelopmentCounter = 0
 
@@ -165,17 +167,21 @@ class Game {
         this.createTicker()
     }
     pause () {
+        if (this.paused == true) return game.resume()
+        this.paused = true
         app.ticker.stop()
-        this.music.pause()
+        if (this.music != null) this.music.pause()
         // create modal with html
         this.modal(`
         <p style="cursor: pointer;" onclick="game.resume()">Resume</p>
         <p style="cursor: pointer;" onclick="window.location.reload()">Restart</p>
+        ${localStorage.developerMode == "true" ? `<p style="cursor: pointer;" onclick="game.disassembler()">View in Disassembler</p>` : ""}
         <p style="cursor: pointer;" onclick="window.location.href = '/map.html'">Quit</p>
         `)
         this.pauseTime = Date.now()
     }
     resume () {
+        this.paused = false
         app.ticker.start()
         this.music.play()
         // remove modal
@@ -187,6 +193,9 @@ class Game {
             if (note.consumed == true) return
             note.seconds += Date.now() - this.pauseTime
         })
+    }
+    disassembler () {
+        window.location = "/disassembler/?file=" + file + "&id=" + id
     }
     update () {
         this.updateArrows()
@@ -426,9 +435,9 @@ if (params.get("custom") == "true") {
     <input type="file" id="file" accept=".qp" style="color: transparent;margin-left: 55%;" onchange="map.loadMapFile(this.files[0])">
     `)
 } else {
-    let file = params.get("file")
-    let id = params.get("id")
-    if (!file && !id) {
+    file = params.get("file")
+    id = params.get("id")
+    if (!file || !id) {
         window.location.href = "/map.html"
     }
     map.loadId(file, id)
@@ -438,6 +447,6 @@ if (params.get("custom") == "true") {
         game.loadMap(map.exportMap())
         game.start()
         renderer.deleteObject(globalText)
-        game.music.play()
+        if (game.paused == false) game.music.play()
     }, 2000);
 }
