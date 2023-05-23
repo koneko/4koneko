@@ -63,6 +63,7 @@
 					loadedData.forEach((path, file) => {
 						if (file.name.endsWith(".qua")) {
 							file.async("string").then((content) => {
+								console.log(content);
 								let parsed = YAML.parse(content);
 								if (parsed["MapId"] != id) return;
 								if (parsed["Mode"] != "Keys4")

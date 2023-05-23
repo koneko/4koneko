@@ -175,7 +175,8 @@ class Game {
         this.modal(`
         <p style="cursor: pointer;" onclick="game.resume()">Resume</p>
         <p style="cursor: pointer;" onclick="window.location.reload()">Restart</p>
-        ${localStorage.developerMode == "true" ? `<p style="cursor: pointer;" onclick="game.disassembler()">View in Disassembler</p>` : ""}
+        ${localStorage.extraOptions == "true" ? `<p style="cursor: pointer;" onclick="game.disassembler()">View in Disassembler</p>` : ""}
+        ${localStorage.extraOptions == "true" ? `<p style="cursor: pointer;" onclick="game.disableOffset()">Disable Global Offset</p>` : ""}
         <p style="cursor: pointer;" onclick="window.location.href = '/map.html'">Quit</p>
         `)
         this.pauseTime = Date.now()
@@ -196,6 +197,9 @@ class Game {
     }
     disassembler () {
         window.location = "/disassembler/?file=" + file + "&id=" + id
+    }
+    disableOffset () {
+        window.location = "/rwk/?file=" + file + "&id=" + id + "&disableGlobalOffset=true"
     }
     update () {
         this.updateArrows()

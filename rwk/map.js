@@ -32,7 +32,12 @@ class Map {
                         let notes = parsed["HitObjects"]
                         globalName = parsed["Title"]
                         globalDifficulty = parsed["DifficultyName"]
-                        globalInitialStartTime = parsed["TimingPoints"][0]["StartTime"] || 0
+                        // add miliseconds to each note (its just starttime)
+                        notes.forEach(note => {
+                            note["startTime"] = parseInt(note["StartTime"])
+                        })
+                        console.log("diff " + calculateDifficulty(notes))
+                        if (!params.get("disableGlobalOffset")) globalInitialStartTime = parsed["TimingPoints"][0]["StartTime"] || 0
                         console.log("initial start time", globalInitialStartTime)
                         notes.forEach(note => {
                             let lane = parseInt(note["Lane"]) - 1

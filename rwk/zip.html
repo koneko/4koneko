@@ -54,6 +54,7 @@
 </div>
 <script src="/zip/jszip.min.js"></script>
 <script src="/zip/yaml.js"></script>
+<script src="/rwk/difficulty.js"></script>
 <script>
 	// params
 	const params = new URLSearchParams(window.location.search);
@@ -104,6 +105,8 @@
 				let loaded = await JSZip.loadAsync(file);
 				let zip = new JSZip();
 				loaded.forEach((path, file) => {
+					if (file.name.endsWith(".qua")) {
+					}
 					if (file.name.endsWith(".png") || file.name.endsWith(".jpg")) {
 						// get file content
 						file.async("base64").then((content) => {
