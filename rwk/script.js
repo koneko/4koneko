@@ -269,7 +269,7 @@ class Game {
     }
     getLetterAndColor (accuracy) {
         if (accuracy == 100) return { letter: "X", color: 0xFFFFFF }
-        else if (accuracy == 99) return { letter: "SS", color: 0xFFFFFF }
+        else if (accuracy > 99) return { letter: "SS", color: 0xFFFFFF }
         else if (accuracy > 95 && accuracy < 99) return { letter: "S", color: 0xFFFFFF }
         else if (accuracy > 90 && accuracy < 95) return { letter: "A", color: 0x00FF00 }
         else if (accuracy > 80 && accuracy < 90) return { letter: "B", color: 0x0000FF }
