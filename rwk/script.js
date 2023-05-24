@@ -8,6 +8,7 @@ let globalVolume = parseInt(localStorage.globalVolume) || 0.5
 let globalName = null
 let globalDifficulty = null
 let globalText = null
+let gameOver = false
 let file = null
 let id = null
 
@@ -171,9 +172,11 @@ class Game {
         if (this.paused == true) return game.resume()
         this.paused = true
         app.ticker.stop()
+        if (gameOver == true) return window.location = "/"
         if (this.music != null) this.music.pause()
         // create modal with html
         this.modal(`
+        ${localStorage.extraOptions == "true" ? `<p style="font-size: 10px;">MS: ${game.ms}</p>` : ""}
         ${localStorage.extraOptions == "true" ? `<div style="display: flex; flex-direction: row;justify-content: space-between; gap: 10px;">` : ""}
         ${localStorage.extraOptions == "true" ? `<p style="cursor: pointer; color: red; font-size: 12px; margin: 0" onclick="game.autoPlay()">AutoPlay</p>` : ""}
         ${localStorage.extraOptions == "true" ? `<p style="cursor: pointer; color: green; font-size: 12px; margin: 0" onclick="game.disableOffset()">NoOffset</p>` : ""}
@@ -248,13 +251,14 @@ class Game {
         let accuracy = this.getAccuracy()
         let { letter, color } = this.getLetterAndColor(accuracy)
         let gradetext = renderer.createText(screenWidth / 2, screenHeight / 2 - 60, `${letter}`, { fontSize: 50, fill: color, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
-        let accuracytext = renderer.createText(screenWidth / 2, screenHeight / 2, `Accuracy: ${accuracy}%`, { fontSize: 30, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
+        let accuracytext = renderer.createText(screenWidth / 2, screenHeight / 2, `Accuracy: ${accuracy}%\nPress Esc to leave!`, { fontSize: 30, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
         gradetext.x = gradetext.x - gradetext.width / 2
         accuracytext.x = accuracytext.x - accuracytext.width / 2
         // clear combo text
-        this.comboText.text = ""
+        if (this.comboText.text != null) this.comboText.text = ""
         // clear judgement text
-        this.text.text = ""
+        if (this.text.text != null) this.text.text = ""
+        gameOver = true
         app.ticker.stop()
     }
     getAccuracy () {
@@ -379,7 +383,7 @@ class Game {
             this.text.text = input
             this.text.style.fill = color
             this.text.x = (app.renderer.width - this.text.width) / 2
-            if (input == "Marvelous") this.text.style.fontFamily = "Roboto Slab"
+            if (input == "Marvelous") this.text.style.fontFamily = "Roboto Condensed"
             else this.text.style.fontFamily = "Roboto"
         }
         else {
