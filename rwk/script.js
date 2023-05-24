@@ -172,7 +172,7 @@ class Game {
         if (this.paused == true) return game.resume()
         this.paused = true
         app.ticker.stop()
-        if (gameOver == true) return window.location = "/"
+        if (gameOver == true) return window.location = "./"
         if (this.music != null) this.music.pause()
         // create modal with html
         this.modal(`
