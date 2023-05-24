@@ -14,8 +14,8 @@ class Arrow {
         this.invalid = false
     }
     update () {
-        this.check()
         this.move()
+        this.check()
     }
     draw (x, y) {
         let width = 120
@@ -39,6 +39,12 @@ class Arrow {
             game.removePoints()
             this.invalid = true
             if (this.text != null) this.text.destroy()
+        }
+        if (this.y > calculateY() + Math.random() && params.get("autoPlay") == "true" && this.object != null) {
+            game.press(getDirectionFromNum(this.lane))
+            setTimeout(() => {
+                game.release(getDirectionFromNum(this.lane))
+            }, 50);
         }
     }
     move () {

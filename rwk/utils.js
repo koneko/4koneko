@@ -11,6 +11,32 @@ function getNum (key) {
     }
 }
 
+function keyFromNum (num) {
+    switch (num) {
+        case 0:
+            return game.left.key;
+        case 1:
+            return game.up.key;
+        case 2:
+            return game.down.key;
+        case 3:
+            return game.right.key;
+    }
+}
+
+function getDirectionFromNum (num) {
+    switch (num) {
+        case 0:
+            return "left";
+        case 1:
+            return "up";
+        case 2:
+            return "down";
+        case 3:
+            return "right";
+    }
+}
+
 function getXFromLaneNum (num) {
     let start = null
     if (screenWidth > 1900) start = (screenWidth / 3.5) + 200

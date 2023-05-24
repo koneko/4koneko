@@ -13,6 +13,7 @@ let id = null
 
 let longNoteDevelopmentCounter = 0
 
+PIXI.settings.SORTABLE_CHILDREN = true;
 document.querySelector("div.canvas").appendChild(app.view);
 
 class Game {
@@ -173,10 +174,13 @@ class Game {
         if (this.music != null) this.music.pause()
         // create modal with html
         this.modal(`
+        ${localStorage.extraOptions == "true" ? `<div style="display: flex; flex-direction: row;justify-content: space-between; gap: 10px;">` : ""}
+        ${localStorage.extraOptions == "true" ? `<p style="cursor: pointer; color: red; font-size: 12px; margin: 0" onclick="game.autoPlay()">AutoPlay</p>` : ""}
+        ${localStorage.extraOptions == "true" ? `<p style="cursor: pointer; color: green; font-size: 12px; margin: 0" onclick="game.disableOffset()">NoOffset</p>` : ""}
+        ${localStorage.extraOptions == "true" ? `<p style="cursor: pointer; color: blue; font-size: 12px; margin: 0"onclick="game.disassembler()">Disassembler</p>` : ""}
+        ${localStorage.extraOptions == "true" ? "</div>" : ""}
         <p style="cursor: pointer;" onclick="game.resume()">Resume</p>
         <p style="cursor: pointer;" onclick="window.location.reload()">Restart</p>
-        ${localStorage.extraOptions == "true" ? `<p style="cursor: pointer;" onclick="game.disassembler()">View in Disassembler</p>` : ""}
-        ${localStorage.extraOptions == "true" ? `<p style="cursor: pointer;" onclick="game.disableOffset()">Disable Global Offset</p>` : ""}
         <p style="cursor: pointer;" onclick="window.location.href = '/map.html'">Quit</p>
         `)
         this.pauseTime = Date.now()
@@ -199,7 +203,12 @@ class Game {
         window.location = "/disassembler/?file=" + file + "&id=" + id
     }
     disableOffset () {
-        window.location = "/rwk/?file=" + file + "&id=" + id + "&disableGlobalOffset=true"
+        if (params.get("disableGlobalOffset") == "true") window.location = "/rwk/?file=" + file + "&id=" + id
+        else window.location = "/rwk/?file=" + file + "&id=" + id + "&disableGlobalOffset=true"
+    }
+    autoPlay () {
+        if (params.get("autoPlay") == "true") window.location = "/rwk/?file=" + file + "&id=" + id
+        else window.location = "/rwk/?file=" + file + "&id=" + id + "&autoPlay=true"
     }
     update () {
         this.updateArrows()
@@ -312,16 +321,20 @@ class Game {
         this.lanes[num].valid = true
     }
     keyPressHandler () {
+        // keydown listener
+        document.addEventListener("keydown", (e) => {
+            if (e.key.toLowerCase() == "escape") {
+                console.warn("pause")
+                this.pause()
+            }
+        })
+        if (params.get("autoPlay") == "true") return false
+
         document.addEventListener("keydown", (e) => {
             if (e.key.toLowerCase() == this.left.key) this.press("left")
             if (e.key.toLowerCase() == this.up.key) this.press("up")
             if (e.key.toLowerCase() == this.down.key) this.press("down")
             if (e.key.toLowerCase() == this.right.key) this.press("right")
-            // when escape, pause
-            if (e.key.toLowerCase() == "escape") {
-                console.warn("pause")
-                this.pause()
-            }
         })
         // on key release
         document.addEventListener("keyup", (e) => {
