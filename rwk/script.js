@@ -97,6 +97,7 @@ class Game {
                 // end game
                 console.warn("end game")
                 this.endGame()
+                return
             }
             this.update();
             this.developerUpdate()
@@ -169,10 +170,10 @@ class Game {
         this.createTicker()
     }
     pause () {
+        if (gameOver == true) window.location.href = "/map.html"
         if (this.paused == true) return game.resume()
         this.paused = true
         app.ticker.stop()
-        if (gameOver == true) return window.location = "./"
         if (this.music != null) this.music.pause()
         // create modal with html
         this.modal(`
@@ -259,6 +260,11 @@ class Game {
         // clear judgement text
         if (this.text.text != null) this.text.text = ""
         gameOver = true
+        // remove all event listeners
+        document.removeEventListener("keydown", this.keydown) // stupid workaround to remove event listeners because you cant
+        document.removeEventListener("keyup", this.keyup)     // remove all event listeners at once
+        // stop music
+        this.music.stop()
         app.ticker.stop()
     }
     getAccuracy () {
@@ -326,27 +332,28 @@ class Game {
     }
     keyPressHandler () {
         // keydown listener
-        document.addEventListener("keydown", (e) => {
+        this.pauseEvent = (e) => {
             if (e.key.toLowerCase() == "escape") {
                 console.warn("pause")
                 this.pause()
             }
-        })
+        }
+        document.addEventListener("keydown", this.pauseEvent)
         if (params.get("autoPlay") == "true") return false
-
-        document.addEventListener("keydown", (e) => {
+        this.keydownEvent = (e) => {
             if (e.key.toLowerCase() == this.left.key) this.press("left")
             if (e.key.toLowerCase() == this.up.key) this.press("up")
             if (e.key.toLowerCase() == this.down.key) this.press("down")
             if (e.key.toLowerCase() == this.right.key) this.press("right")
-        })
-        // on key release
-        document.addEventListener("keyup", (e) => {
+        }
+        this.keyupEvent = (e) => {
             if (e.key.toLowerCase() == this.left.key) this.release("left")
             if (e.key.toLowerCase() == this.up.key) this.release("up")
             if (e.key.toLowerCase() == this.down.key) this.release("down")
             if (e.key.toLowerCase() == this.right.key) this.release("right")
-        })
+        }
+        document.addEventListener("keydown", this.keydownEvent)
+        document.addEventListener("keyup", this.keyupEvent)
     }
     validateLaneMS (laneNumber) {
         let lane = this.lanes[laneNumber]
