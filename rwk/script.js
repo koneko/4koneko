@@ -264,7 +264,6 @@ class Game {
         document.removeEventListener("keydown", this.keydown) // stupid workaround to remove event listeners because you cant
         document.removeEventListener("keyup", this.keyup)     // remove all event listeners at once
         // stop music
-        this.music.stop()
         app.ticker.stop()
     }
     getAccuracy () {
