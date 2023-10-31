@@ -34,6 +34,7 @@ class Game {
         this.up = { key: "f", pressed: false }
         this.down = { key: "j", pressed: false }
         this.right = { key: "k", pressed: false }
+        this.loadKeyPreferences()
         this.paused = false
         this.pauseTime = 0
         this.lanes = [
@@ -72,10 +73,9 @@ class Game {
             this.mouseY = e.offsetY;
         });
         this.keyPressHandler()
-        this.loadKeyPreferences()
     }
     loadKeyPreferences () {
-        if (localStorage.keys == null) return
+        if (localStorage.globalKeys == null) return
         let keys = JSON.parse(localStorage.globalKeys)
         this.left.key = keys.left
         this.up.key = keys.up
