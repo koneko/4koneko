@@ -26,7 +26,7 @@ class Game {
         this.delta = 0
         this.seconds = 0.0
         this.points = 0
-        this.globalSpeed = parseInt(localStorage.globalSpeed) || 25
+        this.globalSpeed = parseInt(localStorage.globalSpeed) || 1
         this.startTime = null
         this.text = null
         this.ms = 0
@@ -207,11 +207,11 @@ class Game {
         window.location = "/disassembler/?file=" + file + "&id=" + id
     }
     disableOffset () {
-        if (params.get("disableGlobalOffset") == "true") window.location = "./?file=" + file + "&id=" + id
+        if (params.get("disableGlobalOffset") == "true") window.location = "/rwk/?file=" + file + "&id=" + id
         else window.location = "/rwk/?file=" + file + "&id=" + id + "&disableGlobalOffset=true"
     }
     autoPlay () {
-        if (params.get("autoPlay") == "true") window.location = "./?file=" + file + "&id=" + id
+        if (params.get("autoPlay") == "true") window.location = "/rwk/?file=" + file + "&id=" + id
         else window.location = "/rwk/?file=" + file + "&id=" + id + "&autoPlay=true"
     }
     update () {
@@ -220,11 +220,11 @@ class Game {
     updateArrows () {
         if (this.notes == null) return
         this.notes.forEach(note => {
-            if (note.seconds - ((screenHeight * 0.8)/this.globalSpeed)*17 <= this.ms  && note.consumed == false) {
+            if (note.seconds <= this.ms && note.consumed == false) {
                 note.consumed = true
                 let arrow = null
-                if (note.endTime != null && localStorage.experimentalMode == "true") arrow = new LongNote(game, note.lane, note.id, this.ms, note.endTime)
-                else arrow = new Arrow(game, note.lane, note.id, this.ms)
+                if (note.endTime != null && localStorage.experimentalMode == "true") arrow = new LongNote(game, note.lane, note.speed, note.id, this.ms, note.endTime)
+                else arrow = new Arrow(game, note.lane, note.speed, note.id, this.ms)
                 this.arrows.push(arrow)
                 if (note.endTime != null) {
                     console.error("LONG NOTE!")
@@ -256,9 +256,9 @@ class Game {
         gradetext.x = gradetext.x - gradetext.width / 2
         accuracytext.x = accuracytext.x - accuracytext.width / 2
         // clear combo text
-        if (this.comboText !== null && this.comboText.text !== null) this.comboText.text = ""
+        if (this.comboText.text != null) this.comboText.text = ""
         // clear judgement text
-        if (this.text !== null && this.text.text !== null) this.text.text = ""
+        if (this.text.text != null) this.text.text = ""
         gameOver = true
         // remove all event listeners
         document.removeEventListener("keydown", this.keydown) // stupid workaround to remove event listeners because you cant
@@ -275,11 +275,11 @@ class Game {
     getLetterAndColor (accuracy) {
         if (accuracy == 100) return { letter: "X", color: 0xFFFFFF }
         else if (accuracy >= 99) return { letter: "SS", color: 0xFFFFFF }
-        else if (accuracy >= 95 && accuracy < 99) return { letter: "S", color: 0xFFFFFF }
-        else if (accuracy >= 90 && accuracy < 95) return { letter: "A", color: 0x00FF00 }
-        else if (accuracy >= 80 && accuracy < 90) return { letter: "B", color: 0x0000FF }
-        else if (accuracy >= 70 && accuracy < 80) return { letter: "C", color: 0x1FC0D1 }
-        else if (accuracy >= 60 && accuracy < 70) return { letter: "D", color: 0xBA2224 }
+        else if (accuracy > 95 && accuracy < 99) return { letter: "S", color: 0xFFFFFF }
+        else if (accuracy > 90 && accuracy < 95) return { letter: "A", color: 0x00FF00 }
+        else if (accuracy > 80 && accuracy < 90) return { letter: "B", color: 0x0000FF }
+        else if (accuracy > 70 && accuracy < 80) return { letter: "C", color: 0x1FC0D1 }
+        else if (accuracy > 60 && accuracy < 70) return { letter: "D", color: 0xBA2224 }
         else return { letter: "F", color: 0xFF0000 }
     }
     createLanes () {

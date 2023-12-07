@@ -7,11 +7,12 @@ class Map {
         this.metadataParsed = false
         this.difficultys = []
     }
-    createNote (lane, seconds, endTime) {
+    createNote (lane, seconds, speed, endTime) {
         let id = this.latestID + 1
         this.latestID++
         let obj = {
             lane,
+            speed,
             seconds,
             id,
             consumed: false
@@ -36,12 +37,13 @@ class Map {
                             note["startTime"] = parseInt(note["StartTime"])
                         })
                         console.log("diff " + calculateDifficulty(notes))
+                        if (!params.get("disableGlobalOffset")) globalInitialStartTime = parsed["TimingPoints"][0]["StartTime"] || 0
                         console.log("initial start time", globalInitialStartTime)
                         notes.forEach(note => {
                             let lane = parseInt(note["Lane"]) - 1
                             let seconds = parseInt(note["StartTime"]) - parseInt(globalInitialStartTime)
-                            if (note["EndTime"] != null) this.createNote(lane, seconds, parseInt(note["EndTime"])) // proklet bio ti koji je ovo napravio!!
-                            else this.createNote(lane, seconds)
+                            if (note["EndTime"] != null) this.createNote(lane, seconds, 10, parseInt(note["EndTime"])) // proklet bio ti koji je ovo napravio!!
+                            else this.createNote(lane, seconds, 10)
                         })
                         // center text around screenwidth / 2
                         globalText = renderer.createText(screenWidth / 2, screenHeight * 0.05, `Song: ${globalName}\nDifficulty: ${globalDifficulty}`, { fontSize: 24, fill: 0xFFFFFF, align: "center", stroke: 0x000000, strokeThickness: 4, fontFamily: "Roboto" })
