@@ -1,8 +1,8 @@
 class LongNote {
-    constructor (game, lane, index, ms, endMS) {
+    constructor (game, lane, speed, index, ms, endMS) {
         this.game = game
         this.lane = lane
-        this.speed = game.globalSpeed
+        this.speed = speed
         this.index = index
         this.x = getXFromLaneNum(lane)
         this.y = 0
@@ -51,10 +51,10 @@ class LongNote {
     }
     move () {
         // move all spawned notes
-        if (!this.startNoteDestroyed && this.startNote != null) this.startNote.y += this.speed
-        if (!this.endNoteDestroyed && this.endNote != null) this.endNote.y += this.speed
+        if (!this.startNoteDestroyed && this.startNote != null) this.startNote.y += Math.round(2.5 * this.speed * game.globalSpeed)
+        if (!this.endNoteDestroyed && this.endNote != null) this.endNote.y += Math.round(2.5 * this.speed * game.globalSpeed)
         this.middleNotes.forEach(note => {
-            note.y += this.speed
+            note.y += Math.round(2.5 * this.speed * game.globalSpeed)
         })
     }
     check () {
