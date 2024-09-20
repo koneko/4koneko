@@ -1,3 +1,5 @@
+# I AM NO LONGER WORKING ON THIS. instead im working on [this](https://github.com/koneko/towerdefense)
+# also it is possible the game is broken for your since i stopped paying for the domain, fix it yourself
 # 4koneko
 **A simple vertical scrolling rhythm game written in JavaScript, available in the browser with many songs to play.**   
 [![Screenshot](/assets/gameplay.gif)](https://4koneko.world/)  
