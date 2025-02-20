@@ -1,123 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Map Disassembler</title>
-		<script src="/zip/jszip.min.js"></script>
-		<script src="/zip/yaml.js"></script>
-		<style>
-			.content {
-				/* cool formating like you are viewing yaml code */
-				white-space: pre;
-				font-family: monospace;
-				font-size: 20px;
-				/* make it scrollable */
-				overflow-y: auto;
-				overflow-x: hidden;
-				/* make it look cozy with a coffee like background */
-				background-color: #e2e2e2;
-				/* make it look like a paper */
-				padding: 10px;
-				/* make it look like a paper */
-				border-radius: 10px;
-				/* make it look like a paper */
-				box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.75);
-				/* make it look like a paper */
-				border: 1px solid black;
-				/* make it look like a paper */
-				margin: 10px;
-				/* make it look like a paper */
-				width: 90%;
-				/* make it look like a paper */
-				height: 90%;
-			}
-			body {
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				background-color: #e2e2e2;
-			}
-		</style>
-	</head>
-	<body>
-		<div class="content">Loading in disassembler...</div>
-	</body>
-	<script>
-		// params
-		const params = new URLSearchParams(window.location.search);
-		const file = params.get("file");
-		const id = params.get("id");
-		const dark = params.get("dark");
-		if (!file || !id) window.location.href = "/?error=paramsMissing";
-		document.body.style.backgroundColor = "#1a1a1a";
-		document.querySelector(".content").style.backgroundColor = "#2a2a2a";
-		document.querySelector(".content").style.color = "white";
-		// get file
-		fetch("https://maps.4koneko.world/" + file + ".qp")
-			.then((res) => res.blob())
-			.then((data) => {
-				let zip = new JSZip();
-				zip.loadAsync(data).then((loadedData) => {
-					loadedData.forEach((path, file) => {
-						if (file.name.endsWith(".qua")) {
-							file.async("string").then((content) => {
-								console.log(content);
-								let parsed = YAML.parse(content);
-								if (parsed["MapId"] != id) return;
-								if (parsed["Mode"] != "Keys4")
-									return (window.location = "/?error=notKeys4");
-								let div = document.querySelector(".content");
-								// put file as text in div
-								div.innerText = content;
-								// highlight hitobjects
-								div.innerHTML = div.innerHTML.replaceAll(
-									"HitObjects",
-									'<span style="color: dodgerblue">HitObjects</span>'
-								);
-								// highlight title, creator, artist, timingpoints, mapset and map id
-								div.innerHTML = div.innerHTML.replaceAll(
-									"Title",
-									'<span style="color: dodgerblue">Title</span>'
-								);
-								div.innerHTML = div.innerHTML.replaceAll(
-									"Creator",
-									'<span style="color: dodgerblue">Creator</span>'
-								);
-								div.innerHTML = div.innerHTML.replaceAll(
-									"Artist",
-									'<span style="color: dodgerblue">Artist</span>'
-								);
-								div.innerHTML = div.innerHTML.replaceAll(
-									"TimingPoints",
-									'<span style="color: dodgerblue">TimingPoints</span>'
-								);
-								div.innerHTML = div.innerHTML.replaceAll(
-									"MapId",
-									'<span style="color: dodgerblue">MapId</span>'
-								);
-								div.innerHTML = div.innerHTML.replaceAll(
-									"MapSetId",
-									'<span style="color: dodgerblue">MapSetId</span>'
-								);
-								// add hr before hit objects
-								div.innerHTML = div.innerHTML.replaceAll(
-									"HitObjects",
-									"<hr>HitObjects"
-								);
-								// where there is - StartTime: , the number after it is in ms, convert it to seconds and add it after
-								div.innerHTML = div.innerHTML.replaceAll(
-									/StartTime: \d+/g,
-									(match) => {
-										let seconds = parseInt(match.split(" ")[1]) / 1000;
-										return match + ` (${seconds}s)`;
-									}
-								);
-							});
-						}
-					});
-				});
-			});
-	</script>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Map Disassembler</title>
+        <script src="/zip/jszip.min.js"></script>
+        <script src="/zip/yaml.js"></script>
+        <style>
+            .content {
+                /* cool formating like you are viewing yaml code */
+                white-space: pre;
+                font-family: monospace;
+                font-size: 20px;
+                /* make it scrollable */
+                overflow-y: auto;
+                overflow-x: hidden;
+                /* make it look cozy with a coffee like background */
+                background-color: #e2e2e2;
+                /* make it look like a paper */
+                padding: 10px;
+                /* make it look like a paper */
+                border-radius: 10px;
+                /* make it look like a paper */
+                box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.75);
+                /* make it look like a paper */
+                border: 1px solid black;
+                /* make it look like a paper */
+                margin: 10px;
+                /* make it look like a paper */
+                width: 90%;
+                /* make it look like a paper */
+                height: 90%;
+            }
+            body {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: #e2e2e2;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="content">Loading in disassembler...</div>
+    </body>
+    <script>
+        // params
+        const params = new URLSearchParams(window.location.search);
+        const file = params.get("file");
+        const id = params.get("id");
+        const dark = params.get("dark");
+        if (!file || !id) window.location.href = "/?error=paramsMissing";
+        document.body.style.backgroundColor = "#1a1a1a";
+        document.querySelector(".content").style.backgroundColor = "#2a2a2a";
+        document.querySelector(".content").style.color = "white";
+        // get file
+        fetch("https://hub.koneko.link/4kmaps/" + file + ".qp")
+            .then((res) => res.blob())
+            .then((data) => {
+                let zip = new JSZip();
+                zip.loadAsync(data).then((loadedData) => {
+                    loadedData.forEach((path, file) => {
+                        if (file.name.endsWith(".qua")) {
+                            file.async("string").then((content) => {
+                                console.log(content);
+                                let parsed = YAML.parse(content);
+                                if (parsed["MapId"] != id) return;
+                                if (parsed["Mode"] != "Keys4")
+                                    return (window.location =
+                                        "/?error=notKeys4");
+                                let div = document.querySelector(".content");
+                                // put file as text in div
+                                div.innerText = content;
+                                // highlight hitobjects
+                                div.innerHTML = div.innerHTML.replaceAll(
+                                    "HitObjects",
+                                    '<span style="color: dodgerblue">HitObjects</span>'
+                                );
+                                // highlight title, creator, artist, timingpoints, mapset and map id
+                                div.innerHTML = div.innerHTML.replaceAll(
+                                    "Title",
+                                    '<span style="color: dodgerblue">Title</span>'
+                                );
+                                div.innerHTML = div.innerHTML.replaceAll(
+                                    "Creator",
+                                    '<span style="color: dodgerblue">Creator</span>'
+                                );
+                                div.innerHTML = div.innerHTML.replaceAll(
+                                    "Artist",
+                                    '<span style="color: dodgerblue">Artist</span>'
+                                );
+                                div.innerHTML = div.innerHTML.replaceAll(
+                                    "TimingPoints",
+                                    '<span style="color: dodgerblue">TimingPoints</span>'
+                                );
+                                div.innerHTML = div.innerHTML.replaceAll(
+                                    "MapId",
+                                    '<span style="color: dodgerblue">MapId</span>'
+                                );
+                                div.innerHTML = div.innerHTML.replaceAll(
+                                    "MapSetId",
+                                    '<span style="color: dodgerblue">MapSetId</span>'
+                                );
+                                // add hr before hit objects
+                                div.innerHTML = div.innerHTML.replaceAll(
+                                    "HitObjects",
+                                    "<hr>HitObjects"
+                                );
+                                // where there is - StartTime: , the number after it is in ms, convert it to seconds and add it after
+                                div.innerHTML = div.innerHTML.replaceAll(
+                                    /StartTime: \d+/g,
+                                    (match) => {
+                                        let seconds =
+                                            parseInt(match.split(" ")[1]) /
+                                            1000;
+                                        return match + ` (${seconds}s)`;
+                                    }
+                                );
+                            });
+                        }
+                    });
+                });
+            });
+    </script>
 </html>

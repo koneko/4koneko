@@ -8,7 +8,8 @@
 			rel="icon"
 			href="https://hub.koneko.link/cdn/icons/black.png"
 			type="image/gif"
-			sizes="16x16" />
+			sizes="16x16"
+		/>
 		<title>4koneko - Map Selector</title>
 		<link rel="stylesheet" href="/css/main.css" />
 	</head>
@@ -26,7 +27,7 @@
 		</main>
 	</body>
 	<script>
-		fetch("https://maps.4koneko.world/list.json")
+		fetch("https://hub.koneko.link/4kmaps/list.json")
 			.then((res) => res.json())
 			.then((data) => {
 				if (localStorage.showCounter == "true")

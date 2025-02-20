@@ -99,7 +99,7 @@
 					mapsDiv.appendChild(mapDiv);
 				});
 			});
-		fetch("https://maps.4koneko.world/" + inputfile + ".qp")
+		fetch("https://hub.koneko.link/4kmaps/" + inputfile + ".qp")
 			.then((res) => res.blob())
 			.then(async (file) => {
 				let loaded = await JSZip.loadAsync(file);
@@ -107,12 +107,17 @@
 				loaded.forEach((path, file) => {
 					if (file.name.endsWith(".qua")) {
 					}
-					if (file.name.endsWith(".png") || file.name.endsWith(".jpg")) {
+					if (
+						file.name.endsWith(".png") ||
+						file.name.endsWith(".jpg")
+					) {
 						// get file content
 						file.async("base64").then((content) => {
 							// do something with content
 							// set it as background image for #div
-							document.getElementById("div").style.backgroundImage =
+							document.getElementById(
+								"div"
+							).style.backgroundImage =
 								"url(data:image/png;base64," + content + ")";
 						});
 					}
