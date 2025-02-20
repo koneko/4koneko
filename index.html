@@ -11,7 +11,7 @@
 			sizes="16x16"
 		/>
 		<title>4koneko - Map Selector</title>
-		<link rel="stylesheet" href="/css/main.css" />
+		<link rel="stylesheet" href="./css/main.css" />
 	</head>
 	<body>
 		<main>
@@ -20,7 +20,7 @@
 				<div>
 					<a href="about.html">about</a>
 					<a href="settings.html">settings</a>
-					<a href="/rwk/?custom=true">custom file</a>
+					<a href="./rwk/?custom=true">custom file</a>
 				</div>
 			</nav>
 			<div id="out"></div>
@@ -90,7 +90,7 @@
 			document.body.appendChild(modal);
 			// create iframe
 			const iframe = document.createElement("iframe");
-			iframe.src = "/rwk/zip.html?file=" + file + "&e=" + Date.now();
+			iframe.src = "./rwk/zip.html?file=" + file + "&e=" + Date.now();
 			// set iframe name
 			iframe.name = Date.now();
 			iframe.style.width = "80%";
@@ -112,11 +112,11 @@
 		let error = params.get("error");
 		if (error == "notKeys4") {
 			alert("That map is not a 4k map! Please select a 4k map.");
-			window.location = "/";
+			window.location = "./";
 		}
 		if (error == "paramsMissing") {
 			alert("Please provide a file and id parameter.");
-			window.location = "/";
+			window.location = "./";
 		}
 	</script>
 </html>
