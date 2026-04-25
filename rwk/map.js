@@ -89,7 +89,7 @@ class Map {
 		});
 	}
 	loadId(file, id) {
-		fetch("https://hub.koneko.link/4kmaps/" + file + ".qp")
+		fetch("https://koneko.github.io/4kmaps/" + file + ".qp")
 			.then((res) => res.blob())
 			.then((data) => {
 				this.loadExternalMap(data, id);
