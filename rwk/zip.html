@@ -99,7 +99,7 @@
 					mapsDiv.appendChild(mapDiv);
 				});
 			});
-		fetch("https://hub.koneko.link/4kmaps/" + inputfile + ".qp")
+		fetch("https://koneko.github.io/4kmaps/" + inputfile + ".qp")
 			.then((res) => res.blob())
 			.then(async (file) => {
 				let loaded = await JSZip.loadAsync(file);
